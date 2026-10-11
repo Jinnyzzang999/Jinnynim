@@ -1,0 +1,2154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="AI character &amp; environment development studio tool for animation students.">
+<title>캐릭터 메이커 · Character Maker</title>
+<style>
+:root{
+  --teal:#00BCB8; --teal-d:#009693; --magenta:#FF3399; --magenta-d:#D8176F;
+  --ink:#16191c; --ink-2:#4a5257; --ink-3:#7b858c;
+  --bg:#ffffff; --panel:#f6f8f8; --panel-2:#eef2f2; --line:#dde3e3;
+  --warn-bg:#fff4f8; --ok-bg:#eafaf9;
+  --radius:10px; --shadow:0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.05);
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e8edee; --ink-2:#aeb8bc; --ink-3:#7f8a90;
+    --bg:#13171a; --panel:#1b2024; --panel-2:#232a2f; --line:#313a40;
+    --warn-bg:#2b1a24; --ok-bg:#15282a;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  font-size:15px; line-height:1.6; -webkit-text-size-adjust:100%;}
+h1,h2,h3{line-height:1.3; margin:0}
+button{font:inherit; cursor:pointer}
+input,textarea,select{font:inherit; color:inherit}
+
+.wrap{max-width:1300px; margin:0 auto; padding:0 16px 80px}
+header.top{position:sticky; top:0; z-index:30; background:var(--bg); border-bottom:1px solid var(--line); padding:12px 0 0}
+.top-in{max-width:1300px; margin:0 auto; padding:0 16px}
+.brand{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.brand h1{font-size:19px; letter-spacing:-.01em}
+.brand .sub{color:var(--ink-3); font-size:13px}
+.meter{margin-left:auto; display:flex; gap:12px; align-items:center; font-size:12.5px; color:var(--ink-2)}
+.meter b{font-variant-numeric:tabular-nums; color:var(--ink)}
+.langsw{display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden}
+.langsw button{border:0; background:var(--bg); color:var(--ink-3); padding:3px 11px; font-size:12px; font-weight:700}
+.langsw button[aria-pressed="true"]{background:var(--teal); color:#fff}
+nav.steps{display:flex; gap:2px; overflow-x:auto; margin-top:10px; scrollbar-width:none}
+nav.steps::-webkit-scrollbar{display:none}
+nav.steps button{border:0; background:none; color:var(--ink-3); padding:9px 13px; border-radius:8px 8px 0 0;
+  border-bottom:2.5px solid transparent; white-space:nowrap; font-size:13.5px; font-weight:600}
+nav.steps button:hover{color:var(--ink); background:var(--panel)}
+nav.steps button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--teal)}
+nav.steps button .n{color:var(--teal); font-variant-numeric:tabular-nums; margin-right:5px}
+
+.cols{display:grid; grid-template-columns:minmax(0,1fr) 352px; gap:24px; align-items:start; margin-top:22px}
+@media (max-width:1020px){ .cols{grid-template-columns:1fr} }
+
+.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 16px 18px; margin-bottom:16px}
+.card > h2{font-size:15.5px; margin-bottom:3px}
+.hint{color:var(--ink-2); font-size:13px; margin:6px 0 12px}
+.hint.tight{margin-bottom:6px}
+.why{border-left:3px solid var(--teal); background:var(--ok-bg); padding:9px 12px; border-radius:0 8px 8px 0;
+  font-size:13px; color:var(--ink-2); margin:10px 0 14px}
+.why b{color:var(--ink)}
+.warn{border-left-color:var(--magenta); background:var(--warn-bg)}
+h3.sec{font-size:12.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3); margin:18px 0 8px}
+h3.sec:first-child{margin-top:0}
+h3.sec .lite{text-transform:none; letter-spacing:0; color:var(--ink-3); font-weight:400}
+
+.grid{display:grid; gap:10px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:660px){ .g2,.g3{grid-template-columns:1fr} }
+label.f{display:block}
+label.f > span.lb{display:block; font-size:12.5px; font-weight:600; color:var(--ink-2); margin-bottom:4px}
+label.f > span.lb em{font-style:normal; font-weight:400; color:var(--ink-3)}
+input[type=text], input[type=password], textarea, select{width:100%; background:var(--bg); border:1px solid var(--line);
+  border-radius:8px; padding:8px 10px; outline:none}
+input:focus, textarea:focus, select:focus{border-color:var(--teal); box-shadow:0 0 0 3px rgba(0,188,184,.18)}
+textarea{resize:vertical; min-height:72px}
+textarea.prompt{font-family:var(--mono); font-size:12.5px; line-height:1.55; min-height:130px}
+textarea.prompt.multi{min-height:210px}
+.req-empty{border-color:var(--magenta) !important}
+.custom-in{margin-top:6px; display:none}
+.custom-in.on{display:block}
+
+.btn{border:1px solid var(--line); background:var(--bg); color:var(--ink); padding:8px 14px; border-radius:8px;
+  font-size:13.5px; font-weight:600}
+.btn:hover{border-color:var(--ink-3)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn.pri{background:var(--teal); border-color:var(--teal); color:#fff}
+.btn.pri:hover{background:var(--teal-d); border-color:var(--teal-d)}
+.btn.sm{padding:5px 10px; font-size:12.5px; font-weight:500}
+.row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.spacer{flex:1}
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chip{border:1px solid var(--line); background:var(--bg); border-radius:999px; padding:5px 12px; font-size:12.5px; color:var(--ink-2)}
+.chip:hover{border-color:var(--teal); color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--teal); border-color:var(--teal); color:#fff}
+
+/* 선택 목록 — 체크박스 + 바로 생성 */
+.optlist{display:grid; grid-template-columns:1fr 1fr; gap:4px 10px; margin-top:4px}
+@media (max-width:760px){ .optlist{grid-template-columns:1fr} }
+.optgrp{grid-column:1/-1; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3);
+  margin:10px 0 2px; font-weight:700}
+.opt{display:flex; align-items:center; gap:7px; padding:3px 6px; border-radius:7px; font-size:13px}
+.opt:hover{background:var(--panel-2)}
+.opt input{margin:0; flex:none}
+.opt .nm{flex:1; cursor:pointer; min-width:0}
+.opt .go{border:1px solid var(--line); background:var(--bg); border-radius:6px; font-size:11px; padding:2px 8px;
+  color:var(--ink-3); flex:none; opacity:0}
+.opt:hover .go{opacity:1}
+.opt .go:hover{border-color:var(--teal); color:var(--ink)}
+.selbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px solid var(--line)}
+.selbar .cnt{font-size:12.5px; color:var(--ink-2)}
+.selbar .cnt b{color:var(--teal-d); font-variant-numeric:tabular-nums}
+
+.drop{border:1.5px dashed var(--line); border-radius:var(--radius); background:var(--bg); padding:16px;
+  text-align:center; color:var(--ink-3); font-size:13px}
+.drop.on{border-color:var(--teal); background:var(--ok-bg); color:var(--ink)}
+.drop input{display:none}
+.refs{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+.ref{position:relative; width:84px}
+.ref img{width:84px; height:84px; object-fit:cover; border-radius:8px; border:1px solid var(--line); display:block; background:var(--panel-2)}
+.ref .tag{font-size:10.5px; color:var(--ink-3); text-align:center; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ref .x{position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; border:1px solid var(--line);
+  background:var(--bg); color:var(--ink-2); font-size:12px; line-height:1; display:grid; place-items:center; padding:0}
+.ref.anchor img{border:2px solid var(--teal)}
+.ref.anchor .tag{color:var(--teal-d); font-weight:700}
+
+aside.gal{position:sticky; top:112px}
+@media (max-width:1020px){ aside.gal{position:static} }
+.gal .card{margin-bottom:12px}
+.shots{display:grid; grid-template-columns:1fr 1fr; gap:8px; max-height:58vh; overflow:auto}
+.shot{border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--bg)}
+.shot.picked{border-color:var(--teal); box-shadow:0 0 0 2px rgba(0,188,184,.25)}
+.shot img{width:100%; display:block; aspect-ratio:1; object-fit:cover; background:var(--panel-2); cursor:zoom-in}
+.shot .meta{padding:5px 7px; font-size:10.5px; color:var(--ink-3); line-height:1.4}
+.shot .meta .fn{color:var(--ink); font-family:var(--mono); font-size:10px; word-break:break-all}
+.shot .acts{display:flex; gap:3px; padding:0 5px 5px}
+.shot .acts button{flex:1; font-size:10.5px; padding:3px 0; border:1px solid var(--line); background:var(--bg);
+  border-radius:5px; color:var(--ink-2)}
+.shot .acts button:hover{border-color:var(--teal); color:var(--ink)}
+.shot .acts button.on{background:var(--teal); border-color:var(--teal); color:#fff}
+.empty{color:var(--ink-3); font-size:12.5px; text-align:center; padding:22px 10px}
+
+table.log{width:100%; border-collapse:collapse; font-size:12px}
+table.log th,table.log td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top}
+table.log th{color:var(--ink-3); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.05em}
+table.log td.p{font-family:var(--mono); font-size:10.5px; color:var(--ink-2); max-width:420px}
+.scroll{overflow:auto; max-height:520px}
+
+#status{position:fixed; left:50%; transform:translateX(-50%); bottom:20px; z-index:60; background:var(--ink); color:var(--bg);
+  padding:10px 16px; border-radius:999px; font-size:13px; box-shadow:var(--shadow); max-width:min(92vw,660px); display:none}
+#status.show{display:block}
+#status.err{background:var(--magenta-d); color:#fff}
+.spin{display:inline-block; width:11px; height:11px; border:2px solid currentColor; border-right-color:transparent;
+  border-radius:50%; animation:sp .7s linear infinite; vertical-align:-1px; margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+#lb,#cmp{position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:70; display:none; padding:24px; overflow:auto}
+#lb.show{display:grid; place-items:center}
+#cmp.show{display:block}
+#lb img{max-width:100%; max-height:86vh; object-fit:contain; border-radius:6px}
+#lb .close,#cmp .close{position:fixed; top:14px; right:18px; background:none; border:0; color:#fff; font-size:28px; z-index:2}
+#cmp .inner{max-width:1200px; margin:0 auto}
+#cmp h3{color:#fff; font-size:15px; margin-bottom:12px}
+#cmp .pane{display:grid; gap:12px}
+#cmp .pane figure{margin:0; background:#111; border-radius:8px; overflow:hidden}
+#cmp .pane img{width:100%; display:block}
+#cmp .pane figcaption{color:#bbb; font-size:11px; font-family:var(--mono); padding:6px 8px}
+
+.panel{display:none}
+.panel.on{display:block}
+details.help{border-top:1px solid var(--line); padding-top:10px; margin-top:14px}
+details.help summary{cursor:pointer; font-size:12.5px; color:var(--ink-2); font-weight:600}
+details.help .body{font-size:12.5px; color:var(--ink-2); padding-top:8px}
+details.help table{width:100%; border-collapse:collapse; font-size:12px; margin-top:6px}
+details.help td{padding:4px 8px; border-bottom:1px solid var(--line)}
+details.help td:first-child{color:var(--ink-3); width:38%}
+code{font-family:var(--mono); font-size:12px; background:var(--panel-2); padding:1px 5px; border-radius:4px}
+.kv{font-size:12.5px; color:var(--ink-2)}
+.kv b{color:var(--ink)}
+.lock{display:flex; align-items:center; gap:10px; margin:4px 0 12px; font-size:12.5px; color:var(--ink-2)}
+.lock .bar{flex:1; height:6px; background:var(--panel-2); border-radius:99px; overflow:hidden}
+.lock .bar i{display:block; height:100%; background:var(--teal); width:0; transition:width .25s}
+.lock b{font-variant-numeric:tabular-nums}
+footer.note{color:var(--ink-3); font-size:12px; text-align:center; margin-top:30px; line-height:1.7}
+#sheetCanvas{max-width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; margin-top:12px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1 data-i18n="app.name">캐릭터 메이커</h1>
+      <span class="sub" data-i18n="app.sub">AI 캐릭터·배경 개발 실습 도구 · Nano Banana</span>
+      <div class="meter">
+        <span><span data-i18n="m.made">생성</span> <b id="mCount">0</b></span>
+        <span><span data-i18n="m.cost">예상 비용</span> <b id="mCost">$0.00</b></span>
+        <span class="langsw"><button id="langKo" aria-pressed="true">한국어</button><button id="langEn">EN</button></span>
+      </div>
+    </div>
+    <nav class="steps" id="tabs" role="tablist"></nav>
+  </div>
+</header>
+
+<div class="wrap"><div class="cols">
+<main>
+
+<!-- ======== 0 SETUP ======== -->
+<section class="panel" id="p0" role="tabpanel">
+  <div class="card">
+    <h2 data-i18n="set.key">API 키 연결</h2>
+    <p class="hint" data-i18n="set.keyHint">키는 이 브라우저에만 저장됩니다. 생성 요청은 내 브라우저에서 Google로 바로 갑니다.</p>
+    <div class="why warn" data-i18n-html="set.paidWarn"></div>
+    <label class="f"><span class="lb" data-i18n="set.apiKey">API 키</span>
+      <input type="password" id="apiKey" placeholder="AIza… (aistudio.google.com/apikey)" autocomplete="off"></label>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="btnSaveKey" data-i18n="set.save">키 저장</button>
+      <button class="btn" id="btnTest" data-i18n="set.test">연결 테스트</button>
+      <button class="btn sm" id="btnClearKey" data-i18n="set.del">키 삭제</button>
+      <span class="spacer"></span><span class="kv" id="keyState"></span>
+    </div>
+
+    <h3 class="sec" data-i18n="set.model">모델과 출력</h3>
+    <div class="grid g3">
+      <label class="f"><span class="lb" data-i18n="set.modelL">모델</span><select id="model"></select></label>
+      <label class="f"><span class="lb" data-i18n="set.aspect">화면비</span>
+        <select id="aspect">
+          <option value="1:1">1:1</option><option value="3:4">3:4</option><option value="4:3">4:3</option>
+          <option value="16:9" selected>16:9</option><option value="9:16">9:16</option><option value="21:9">21:9</option>
+        </select></label>
+      <label class="f"><span class="lb" data-i18n="set.size">해상도</span>
+        <select id="size"><option value="1K" selected>1K</option><option value="2K">2K</option><option value="4K">4K</option></select></label>
+    </div>
+    <div class="grid g2" style="margin-top:10px">
+      <label class="f"><span class="lb" data-i18n="set.n">한 번에 만들 장수</span>
+        <select id="nGen"><option>1</option><option selected>3</option><option>4</option></select></label>
+      <label class="f"><span class="lb" data-i18n="set.api">API 방식</span>
+        <select id="apiMode"><option value="auto" selected data-i18n="set.auto">자동</option>
+          <option value="interactions">Interactions</option><option value="legacy">generateContent</option></select></label>
+    </div>
+
+    <h3 class="sec" data-i18n="set.neg">금지 항목 <span class="lite" data-i18n="set.negLite">— 모든 프롬프트 끝에 붙습니다</span></h3>
+    <input type="text" id="negIn">
+    <div class="row" style="margin-top:8px">
+      <button class="btn sm" id="btnNegReset" data-i18n="set.negReset">기본값으로</button>
+      <span class="kv" data-i18n="set.negTip">손이 자꾸 이상하면 natural hands, five fingers 를 여기 말고 본문 앞쪽에 넣으세요.</span>
+    </div>
+    <details class="help"><summary data-i18n="set.howto">키 발급 순서</summary><div class="body" id="howtoBody"></div></details>
+  </div>
+</section>
+
+<!-- ======== 1 CHARACTER ======== -->
+<section class="panel" id="p1" role="tabpanel">
+  <div class="card">
+    <h2 data-i18n="c.card">캐릭터 설정 카드</h2>
+    <p class="hint" data-i18n="c.cardHint">눈으로 확인 가능한 항목만 적습니다. 비워 둔 칸은 AI가 매번 다르게 만듭니다.</p>
+    <div class="why" data-i18n-html="c.why"></div>
+    <div class="lock"><span data-i18n="c.lock">고정도</span><span class="bar"><i id="lockBar"></i></span><b id="lockTxt">0 / 9</b></div>
+    <div class="grid g2">
+      <label class="f"><span class="lb"><span data-i18n="c.who">나이 · 성별</span> <em>A 10-year-old girl</em></span><input type="text" class="cc" data-k="who"></label>
+      <label class="f"><span class="lb"><span data-i18n="c.build">체형 · 키</span> <em data-i18n="c.buildE">비교로 적기</em></span><input type="text" class="cc" data-k="build"></label>
+      <label class="f"><span class="lb"><span data-i18n="c.hair">헤어</span> <em data-i18n="c.hairE">길이 + 모양 + 색 이름</em></span><input type="text" class="cc" data-k="hair"></label>
+      <label class="f"><span class="lb"><span data-i18n="c.eyes">눈</span> <em data-i18n="c.eyesE">모양 + 색</em></span><input type="text" class="cc" data-k="eyes"></label>
+      <label class="f"><span class="lb"><span data-i18n="c.top">상의</span> <em data-i18n="c.topE">종류 + 색 + 상태</em></span><input type="text" class="cc" data-k="top"></label>
+      <label class="f"><span class="lb"><span data-i18n="c.bottom">하의</span> <em data-i18n="c.bottomE">종류 + 색 + 길이</em></span><input type="text" class="cc" data-k="bottom"></label>
+      <label class="f"><span class="lb" data-i18n="c.shoes">신발</span><input type="text" class="cc" data-k="shoes"></label>
+      <label class="f"><span class="lb"><span data-i18n="c.prop">고정 소품 1개</span> <em data-i18n="c.propE">일관성 확인에 가장 유용</em></span><input type="text" class="cc" data-k="prop"></label>
+    </div>
+    <div class="why" style="margin:10px 0 0" data-i18n-html="c.propWhy"></div>
+
+    <h3 class="sec" data-i18n="c.styleSec">스타일 <span class="lite" data-i18n="c.styleLite">— 작가·스튜디오 이름 대신 기법 용어로</span></h3>
+    <select id="styleSel"></select>
+    <input type="text" class="custom-in" id="styleSel_c">
+    <label class="f" style="margin-top:12px"><span class="lb"><span data-i18n="c.identity">한 줄 정체</span> <em data-i18n="c.identityE">카드 기록용 · 프롬프트에는 안 들어감</em></span><input type="text" class="cc" data-k="identity"></label>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="c.shotSec">숏 · 카메라 · 빛</h2>
+    <p class="hint" data-i18n="c.shotHint">다섯 축을 따로 고릅니다. 각 칸의 마지막 항목에서 직접 쓸 수 있습니다.</p>
+    <div class="grid g2">
+      <label class="f"><span class="lb" data-i18n="c.sz">숏 크기</span><select id="szSel"></select><input type="text" class="custom-in" id="szSel_c"></label>
+      <label class="f"><span class="lb" data-i18n="c.vw">캐릭터가 향한 방향</span><select id="vwSel"></select><input type="text" class="custom-in" id="vwSel_c"></label>
+      <label class="f"><span class="lb" data-i18n="c.ag">카메라 앵글</span><select id="agSel"></select><input type="text" class="custom-in" id="agSel_c"></label>
+      <label class="f"><span class="lb" data-i18n="c.ln">렌즈</span><select id="lnSel"></select><input type="text" class="custom-in" id="lnSel_c"></label>
+      <label class="f"><span class="lb" data-i18n="c.df">심도</span><select id="dfSel"></select><input type="text" class="custom-in" id="dfSel_c"></label>
+      <label class="f"><span class="lb" data-i18n="c.lt">조명</span><select id="ltSel"></select><input type="text" class="custom-in" id="ltSel_c"></label>
+    </div>
+    <label class="f" style="margin-top:10px"><span class="lb" data-i18n="c.bg">배경</span><select id="bgSel"></select><input type="text" class="custom-in" id="bgSel_c"></label>
+    <label class="f" style="margin-top:10px"><span class="lb"><span data-i18n="c.pose">포즈</span> <em data-i18n="c.poseE">기준 이미지는 차렷에 가까운 중립 포즈가 좋습니다</em></span>
+      <input type="text" id="poseIn"></label>
+    <div class="row" style="margin-top:10px">
+      <label class="kv"><input type="checkbox" id="propFirst"> <span data-i18n="c.propFirst">고정 소품을 문장 맨 앞으로</span></label>
+      <span class="spacer"></span>
+      <button class="btn sm" id="btnExample" data-i18n="c.example">예시 채우기</button>
+      <button class="btn sm" id="btnClearCard" data-i18n="c.clear">비우기</button>
+    </div>
+    <div class="why" style="margin-top:12px" data-i18n-html="c.orderWhy"></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="c.base">기준 프롬프트</h2>
+    <p class="hint tight" data-i18n="c.baseHint">카드 내용이 자동 조립됩니다. 직접 고치면 고친 내용이 전송됩니다.</p>
+    <textarea class="prompt" id="basePrompt" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="btnGen1" data-i18n="b.gen">이미지 생성</button>
+      <button class="btn" id="btnCopy1" data-i18n="b.copy">프롬프트만 복사</button>
+      <span class="spacer"></span>
+      <button class="btn sm" id="btnSaveTxt">character_base.txt</button>
+    </div>
+    <div class="why warn" style="margin-top:14px" data-i18n-html="c.l1done"></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="c.sketch">내 사진 · 스케치에서 시작하기</h2>
+    <p class="hint" data-i18n="c.sketchHint">직접 그린 스케치나 본인 사진을 올려 캐릭터로 옮깁니다.</p>
+    <div class="why warn" data-i18n-html="c.sketchWarn"></div>
+    <div class="drop" id="dropSketch"><input type="file" id="fileSketch" accept="image/*" multiple>
+      <b data-i18n="b.drop">클릭하거나 이미지를 끌어다 놓기</b></div>
+    <div class="refs" id="refsSketch"></div>
+    <div class="chips" style="margin-top:12px">
+      <button class="chip" data-sk="style" data-i18n="sk.style">내 스타일로 다시 그리기</button>
+      <button class="chip" data-sk="clean" data-i18n="sk.clean">스케치를 선화로 정리</button>
+      <button class="chip" data-sk="color" data-i18n="sk.color">선화에 채색하기</button>
+      <button class="chip" data-sk="turn" data-i18n="sk.turn">스케치를 전신 캐릭터로</button>
+    </div>
+    <textarea class="prompt" id="sketchPrompt" spellcheck="false" style="margin-top:10px"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="btnGenSketch" data-i18n="b.gen">이미지 생성</button>
+      <button class="btn" id="btnCopySketch" data-i18n="b.copy">프롬프트만 복사</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======== 2 CONSISTENCY ======== -->
+<section class="panel" id="p2" role="tabpanel">
+  <div class="card">
+    <h2 data-i18n="e.anchor">기준 이미지</h2>
+    <p class="hint tight" data-i18n="e.anchorHint">갤러리에서 고르거나 직접 올립니다. 앞으로 모든 생성이 이 1장에서 출발합니다.</p>
+    <div class="drop" id="dropAnchor"><input type="file" id="fileAnchor" accept="image/*">
+      <b data-i18n="e.anchorUp">기준 이미지 올리기</b></div>
+    <div class="refs" id="refsAnchor"></div>
+    <div class="why warn" style="margin-top:12px" data-i18n-html="e.anchorWhy"></div>
+    <h3 class="sec" data-i18n="e.lockSec">이 기준에서 유지할 것 <span class="lite" data-i18n="e.lockLite">— 모든 편집 지시에 자동으로 들어갑니다</span></h3>
+    <input type="text" id="keepIn">
+    <div class="row" style="margin-top:8px">
+      <button class="btn sm" id="btnKeepFromCard" data-i18n="e.keepFromCard">설정 카드에서 가져오기</button>
+      <span class="kv" data-i18n="e.keepTip">업로드한 이미지가 설정 카드와 다르면 여기를 직접 고쳐 쓰세요.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="e.turn">턴어라운드</h2>
+    <div class="why" data-i18n-html="e.editWhy"></div>
+    <div class="optlist" id="viewList"></div>
+    <label class="f" style="margin-top:10px"><span class="lb"><span data-i18n="e.viewFree">직접 쓰는 뷰</span> <em data-i18n="e.viewFreeE">영어로 — 예: turned 30 degrees, looking down at the floor</em></span>
+      <input type="text" id="viewFree"></label>
+        <h3 class="sec" data-i18n="e.preview">보낼 프롬프트</h3>
+    <p class="hint tight" data-i18n="e.previewHint">선택한 항목이 여기 그대로 조립됩니다. 고치면 고친 내용이 전송됩니다. 키가 없으면 복사해서 무료 Gemini 앱에 쓰세요.</p>
+    <textarea class="prompt multi" id="viewPrompt" spellcheck="false"></textarea>
+<div class="selbar">
+      <span class="cnt"><span data-i18n="b.selected">선택</span> <b id="viewCnt">0</b></span>
+      <button class="btn pri sm" id="btnViewBatch" data-i18n="b.batch">선택한 것 한 번에 생성</button>
+      <button class="btn sm" id="btnViewAll" data-i18n="e.view4">4뷰 전체 선택</button>
+      <button class="btn sm" id="btnViewCopy" data-i18n="b.copyAll">프롬프트 복사</button>
+      <button class="btn sm" id="btnViewNone" data-i18n="b.none">선택 해제</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="e.expr">표정</h2>
+    <p class="hint tight" data-i18n="e.exprHint">감정 단어가 아니라 몸의 상태로 적혀 있습니다. 그대로 쓰거나 아래에서 직접 쓰세요.</p>
+    <div class="optlist" id="exprList"></div>
+    <label class="f" style="margin-top:10px"><span class="lb"><span data-i18n="e.exprFree">직접 쓰는 표정</span> <em data-i18n="e.exprFreeE">영어로, 몸의 상태로 — 예: one eyebrow twitching, trying not to smile</em></span>
+      <input type="text" id="exprFree"></label>
+        <h3 class="sec" data-i18n="e.preview">보낼 프롬프트</h3>
+    <p class="hint tight" data-i18n="e.previewHint">선택한 항목이 여기 그대로 조립됩니다. 고치면 고친 내용이 전송됩니다. 키가 없으면 복사해서 무료 Gemini 앱에 쓰세요.</p>
+    <textarea class="prompt multi" id="exprPrompt" spellcheck="false"></textarea>
+<div class="selbar">
+      <span class="cnt"><span data-i18n="b.selected">선택</span> <b id="exprCnt">0</b></span>
+      <button class="btn pri sm" id="btnExprBatch" data-i18n="b.batch">선택한 것 한 번에 생성</button>
+      <button class="btn sm" id="btnExprCopy" data-i18n="b.copyAll">프롬프트 복사</button>
+      <button class="btn sm" id="btnExprNone" data-i18n="b.none">선택 해제</button>
+    </div>
+    <div class="why" style="margin-top:12px" data-i18n-html="e.exprWhy"></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="e.pose">액션 포즈 시트</h2>
+    <p class="hint tight" data-i18n="e.poseHint">의상·소품·그림체는 그대로 두고 포즈만 바꿉니다. 실루엣이 무너지는 지점이 여기서 드러납니다.</p>
+    <div class="optlist" id="poseList"></div>
+    <label class="f" style="margin-top:10px"><span class="lb"><span data-i18n="e.poseFree">직접 쓰는 포즈</span> <em data-i18n="e.poseFreeE">영어로 — 예: kneeling down to tie a shoelace</em></span>
+      <input type="text" id="poseFree"></label>
+        <h3 class="sec" data-i18n="e.preview">보낼 프롬프트</h3>
+    <p class="hint tight" data-i18n="e.previewHint">선택한 항목이 여기 그대로 조립됩니다. 고치면 고친 내용이 전송됩니다. 키가 없으면 복사해서 무료 Gemini 앱에 쓰세요.</p>
+    <textarea class="prompt multi" id="posePrompt" spellcheck="false"></textarea>
+<div class="selbar">
+      <span class="cnt"><span data-i18n="b.selected">선택</span> <b id="poseCnt">0</b></span>
+      <button class="btn pri sm" id="btnPoseBatch" data-i18n="b.batch">선택한 것 한 번에 생성</button>
+      <button class="btn sm" id="btnPoseCopy" data-i18n="b.copyAll">프롬프트 복사</button>
+      <button class="btn sm" id="btnPoseNone" data-i18n="b.none">선택 해제</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="e.sil">실루엣 테스트</h2>
+    <div class="why" data-i18n-html="e.silWhy"></div>
+    <div class="optlist" id="silList"></div>
+        <h3 class="sec" data-i18n="e.preview">보낼 프롬프트</h3>
+    <p class="hint tight" data-i18n="e.previewHint">선택한 항목이 여기 그대로 조립됩니다. 고치면 고친 내용이 전송됩니다. 키가 없으면 복사해서 무료 Gemini 앱에 쓰세요.</p>
+    <textarea class="prompt multi" id="silPrompt" spellcheck="false"></textarea>
+<div class="selbar">
+      <span class="cnt"><span data-i18n="b.selected">선택</span> <b id="silCnt">0</b></span>
+      <button class="btn pri sm" id="btnSilBatch" data-i18n="b.batch">선택한 것 한 번에 생성</button>
+      <button class="btn sm" id="btnSilCopy" data-i18n="b.copyAll">프롬프트 복사</button>
+      <button class="btn sm" id="btnSilNone" data-i18n="b.none">선택 해제</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="e.cos">의상 · 소품 베리에이션</h2>
+    <p class="hint tight" data-i18n="e.cosHint">옷이 바뀌어도 같은 사람으로 보이는지, 고정 소품이 살아남는지 확인합니다.</p>
+    <div class="optlist" id="cosList"></div>
+    <label class="f" style="margin-top:10px"><span class="lb" data-i18n="e.cosFree">직접 쓰는 의상</span><input type="text" id="cosFree"></label>
+        <h3 class="sec" data-i18n="e.preview">보낼 프롬프트</h3>
+    <p class="hint tight" data-i18n="e.previewHint">선택한 항목이 여기 그대로 조립됩니다. 고치면 고친 내용이 전송됩니다. 키가 없으면 복사해서 무료 Gemini 앱에 쓰세요.</p>
+    <textarea class="prompt multi" id="cosPrompt" spellcheck="false"></textarea>
+<div class="selbar">
+      <span class="cnt"><span data-i18n="b.selected">선택</span> <b id="cosCnt">0</b></span>
+      <button class="btn pri sm" id="btnCosBatch" data-i18n="b.batch">선택한 것 한 번에 생성</button>
+      <button class="btn sm" id="btnCosCopy" data-i18n="b.copyAll">프롬프트 복사</button>
+      <button class="btn sm" id="btnCosNone" data-i18n="b.none">선택 해제</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="r.title">참조 이미지로 수정하기</h2>
+    <p class="hint tight" data-i18n="r.hint">갤러리에서 [참조]로 담거나 직접 올린 이미지를 함께 보냅니다. 기준 이미지가 1번, 참조가 2번부터입니다.</p>
+    <div class="why warn" data-i18n-html="r.warn"></div>
+    <div class="drop" id="dropRef"><input type="file" id="fileRef" accept="image/*" multiple>
+      <b data-i18n="r.up">참조 이미지 올리기</b><br><span style="font-size:12px" data-i18n="r.upSub">또는 갤러리에서 [참조]를 누르세요 · 최대 3장</span></div>
+    <div class="refs" id="refsRef"></div>
+    <div class="row" style="margin-top:6px">
+      <button class="btn sm" id="btnClearRef" data-i18n="l.clearRef">참조 비우기</button>
+      <span class="kv" id="refState"></span>
+    </div>
+    <h3 class="sec" data-i18n="r.what">무엇을 가져올까</h3>
+    <select id="refSel"></select>
+    <h3 class="sec" data-i18n="e.preview">보낼 프롬프트</h3>
+    <p class="hint tight" data-i18n="e.previewHint"></p>
+    <textarea class="prompt" id="refPrompt" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="btnRefGen" data-i18n="b.gen">이미지 생성</button>
+      <button class="btn" id="btnRefCopy" data-i18n="b.copyAll">프롬프트 복사</button>
+    </div>
+    <div class="why" style="margin-top:14px" data-i18n-html="r.why"></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="e.fix">수정 · 되돌리기</h2>
+    <p class="hint tight" data-i18n="e.fixHint">증상을 고르면 그 증상에 맞는 지시문이 들어갑니다. 대괄호는 내 내용으로 바꿔야 생성됩니다.</p>
+    <select id="fixSel"></select>
+    <textarea class="prompt" id="editPrompt" spellcheck="false" style="margin-top:10px"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="btnGen2" data-i18n="b.gen">이미지 생성</button>
+      <button class="btn" id="btnCopy2" data-i18n="b.copy">프롬프트만 복사</button>
+      <span class="spacer"></span>
+      <button class="btn sm" id="btnBlank" data-i18n="e.blank">빈 양식</button>
+    </div>
+    <details class="help"><summary data-i18n="e.patterns">꼭 익혀 둘 영어 패턴 5개</summary><div class="body" id="patternBody"></div></details>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="e.rubric">자가 채점</h2>
+    <p class="hint" data-i18n="e.rubricHint">시트를 한 화면에 모은 뒤 1~5점으로 채점합니다. 점수는 기록에 함께 저장됩니다.</p>
+    <div id="rubric"></div>
+    <label class="f" style="margin-top:10px"><span class="lb" data-i18n="e.rubricNote">가장 크게 무너진 지점 한 문장</span><input type="text" id="rubricNote"></label>
+  </div>
+</section>
+
+<!-- ======== 3 LOCATION ======== -->
+<section class="panel" id="p3" role="tabpanel">
+  <div class="card">
+    <h2 data-i18n="l.card">공간 설정 카드</h2>
+    <div class="why" data-i18n-html="l.why"></div>
+    <div class="grid g2">
+      <label class="f"><span class="lb"><span data-i18n="l.structure">구조 · 크기</span> <em>around 10 square meters</em></span><input type="text" class="lc" data-k="structure"></label>
+      <label class="f"><span class="lb"><span data-i18n="l.wear">생활 흔적</span> <em data-i18n="l.wearE">무엇이 닳아 있는가</em></span><input type="text" class="lc" data-k="wear"></label>
+      <label class="f"><span class="lb"><span data-i18n="l.era">시대 · 재질</span> <em>1980s, worn linoleum</em></span><input type="text" class="lc" data-k="era"></label>
+      <label class="f"><span class="lb"><span data-i18n="l.light">조명</span> <em data-i18n="l.lightE">색온도를 숫자로</em></span><input type="text" class="lc" data-k="light"></label>
+    </div>
+    <label class="f" style="margin-top:10px"><span class="lb"><span data-i18n="l.trace">캐릭터가 남긴 흔적 하나</span> <em data-i18n="l.traceE">빈 방을 누군가의 방으로 만드는 항목</em></span><input type="text" class="lc" data-k="trace"></label>
+    <h3 class="sec" data-i18n="l.anchorline">기준점 — 180도 법칙</h3>
+    <p class="hint tight" data-i18n="l.anchorHint">같은 공간을 여러 번 생성하면 AI가 좌우를 뒤집습니다. 기준점을 정해 모든 프롬프트에 같은 문장으로 넣습니다.</p>
+    <input type="text" class="lc" data-k="anchorline">
+    <div class="row" style="margin-top:10px">
+      <label class="kv"><input type="checkbox" id="noPeople" checked> <span data-i18n="l.noPeople">No people — 공간을 먼저 완성</span></label>
+      <span class="spacer"></span><button class="btn sm" id="btnExampleLoc" data-i18n="c.example">예시 채우기</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2 data-i18n="l.prompt">공간 프롬프트</h2>
+    <textarea class="prompt" id="locPrompt" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="btnGen3" data-i18n="l.genEmpty">빈 공간 생성</button>
+      <button class="btn" id="btnCopy3" data-i18n="b.copy">프롬프트만 복사</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2 data-i18n="bg.title">배경 이미지 올려서 쓰기</h2>
+    <p class="hint tight" data-i18n="bg.hint">직접 찍은 사진이나 그린 배경을 올려 고치거나, 내 그림체의 배경으로 옮깁니다. 올린 이미지가 1번입니다.</p>
+    <div class="why warn" data-i18n-html="bg.warn"></div>
+    <div class="drop" id="dropBg"><input type="file" id="fileBg" accept="image/*" multiple>
+      <b data-i18n="bg.up">배경 이미지 올리기</b><br><span style="font-size:12px" data-i18n="bg.upSub">내가 찍은 사진 · 내가 그린 배경 · 세트 스케치</span></div>
+    <div class="refs" id="refsBg"></div>
+    <div class="row" style="margin-top:6px">
+      <button class="btn sm" id="btnClearBg" data-i18n="l.clearRef">참조 비우기</button>
+      <span class="kv" id="bgState"></span>
+    </div>
+    <h3 class="sec" data-i18n="bg.what">무엇을 할까</h3>
+    <select id="bgSel2"></select>
+    <h3 class="sec" data-i18n="e.preview">보낼 프롬프트</h3>
+    <p class="hint tight" data-i18n="e.previewHint"></p>
+    <textarea class="prompt" id="bgPrompt" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="btnBgGen" data-i18n="b.gen">이미지 생성</button>
+      <button class="btn" id="btnBgCopy" data-i18n="b.copyAll">프롬프트 복사</button>
+      <span class="spacer"></span>
+      <button class="btn sm" id="btnBgAnchor" data-i18n="bg.makeAnchor">이 배경을 기준으로</button>
+    </div>
+    <div class="why" style="margin-top:14px" data-i18n-html="bg.why"></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="l.shots">같은 공간, 3가지 샷</h2>
+    <p class="hint tight" data-i18n="l.shotsHint">빈 공간 이미지를 기준으로 지정한 뒤 고르세요.</p>
+    <div class="chips">
+      <button class="chip" data-sh="wide" data-i18n="l.wide">와이드 · establishing</button>
+      <button class="chip" data-sh="medium" data-i18n="l.medium">미디엄 · 행동과 대화</button>
+      <button class="chip" data-sh="insert" data-i18n="l.insert">인서트 · 디테일 하나</button>
+      <button class="chip" data-sh="flip" data-i18n="l.flip">좌우가 뒤집혔을 때</button>
+    </div>
+    <textarea class="prompt" id="shotPrompt" spellcheck="false" style="margin-top:10px"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="btnGenShot" data-i18n="b.gen">이미지 생성</button>
+      <button class="btn" id="btnCopyShot" data-i18n="b.copy">프롬프트만 복사</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2 data-i18n="l.combo">캐릭터 + 공간 합성</h2>
+    <p class="hint tight" data-i18n="l.comboHint">갤러리에서 캐릭터 1장과 공간 1장을 참조로 담으세요.</p>
+    <div class="refs" id="refsCombo"></div>
+    <div class="row" style="margin-top:4px">
+      <button class="btn sm" id="btnClearCombo" data-i18n="l.clearRef">참조 비우기</button>
+      <span class="kv" id="comboState"></span>
+    </div>
+    <label class="f" style="margin-top:12px"><span class="lb"><span data-i18n="l.action">무엇을 하고 있는가</span> <em data-i18n="l.actionE">영어로 — 카메라를 보지 않는 자세가 자연스럽습니다</em></span>
+      <input type="text" id="comboAction"></label>
+    <div class="chips" style="margin-top:10px">
+      <button class="chip" data-cb="place" data-i18n="l.place">두 이미지 합성하기</button>
+      <button class="chip" data-cb="light" data-i18n="l.lightFix">인물만 붕 떠 보일 때</button>
+      <button class="chip" data-cb="shadow" data-i18n="l.shadowFix">그림자가 없을 때</button>
+      <button class="chip" data-cb="grade" data-i18n="l.gradeFix">색감이 따로 놀 때</button>
+    </div>
+    <textarea class="prompt" id="comboPrompt" spellcheck="false" style="margin-top:10px"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="btnGenCombo" data-i18n="b.gen">이미지 생성</button>
+      <button class="btn" id="btnCopyCombo" data-i18n="b.copy">프롬프트만 복사</button>
+    </div>
+    <div class="why" style="margin-top:14px" data-i18n-html="l.comboWhy"></div>
+  </div>
+</section>
+
+<!-- ======== 4 SHEET ======== -->
+<section class="panel" id="p4" role="tabpanel">
+  <div class="card">
+    <h2 data-i18n="s.sheet">모델 시트 만들기</h2>
+    <p class="hint" data-i18n="s.sheetHint">갤러리에서 [선택]한 이미지를 한 장의 시트로 조판합니다. 제출용 파일이 바로 나옵니다.</p>
+    <div class="grid g3">
+      <label class="f"><span class="lb" data-i18n="s.title">시트 제목</span><input type="text" id="sheetTitle"></label>
+      <label class="f"><span class="lb" data-i18n="s.cols">가로 칸 수</span>
+        <select id="sheetCols"><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>
+      <label class="f"><span class="lb" data-i18n="s.cell">칸 크기</span>
+        <select id="sheetCell"><option value="420">420px</option><option value="560" selected>560px</option><option value="760">760px</option></select></label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label class="kv"><input type="checkbox" id="sheetLabels" checked> <span data-i18n="s.labels">파일명 표시</span></label>
+      <label class="kv"><input type="checkbox" id="sheetDark"> <span data-i18n="s.dark">어두운 배경</span></label>
+      <span class="spacer"></span>
+      <span class="kv"><span data-i18n="b.selected">선택</span> <b id="sheetCnt">0</b></span>
+      <button class="btn" id="btnSheetBuild" data-i18n="s.build">시트 조판</button>
+      <button class="btn pri" id="btnSheetSave" data-i18n="s.save">PNG 저장</button>
+    </div>
+    <canvas id="sheetCanvas" width="10" height="10"></canvas>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="s.cmp">나란히 비교</h2>
+    <p class="hint tight" data-i18n="s.cmpHint">[선택]한 2~4장을 크게 놓고 봅니다. 작은 썸네일로는 일관성이 판단되지 않습니다.</p>
+    <button class="btn pri" id="btnCmp" data-i18n="s.cmpOpen">비교 화면 열기</button>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="s.log">수정 이력</h2>
+    <p class="hint" data-i18n="s.logHint">생성할 때마다 자동으로 기록됩니다. 결과물보다 이 기록이 평가 대상입니다.</p>
+    <div class="row">
+      <button class="btn pri" id="btnExportMd" data-i18n="s.md">수정 이력 (.md)</button>
+      <button class="btn" id="btnExportCsv" data-i18n="s.csv">CSV</button>
+      <span class="spacer"></span>
+      <button class="btn sm" id="btnClearLog" data-i18n="s.clearLog">기록 비우기</button>
+    </div>
+    <div class="scroll" style="margin-top:14px">
+      <table class="log"><thead><tr><th>#</th><th data-i18n="s.time">시각</th><th data-i18n="s.step">단계</th>
+        <th data-i18n="s.file">파일명</th><th data-i18n="s.modelc">모델</th><th data-i18n="s.prompt">프롬프트</th></tr></thead>
+        <tbody id="logBody"></tbody></table>
+    </div>
+    <div class="empty" id="logEmpty" data-i18n="s.noLog">아직 기록이 없습니다.</div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="s.check">제출 점검</h2>
+    <div id="checklist"></div>
+    <label class="f" style="margin-top:12px"><span class="lb"><span data-i18n="s.why">왜 이 버전을 골랐는가</span> <em data-i18n="s.whyE">이 줄이 가장 중요합니다</em></span>
+      <textarea id="whyPick" style="min-height:64px"></textarea></label>
+  </div>
+</section>
+</main>
+
+<aside class="gal">
+  <div class="card">
+    <h2 data-i18n="g.gal">갤러리</h2>
+    <p class="hint tight" id="galHint" data-i18n="g.galHint">생성한 이미지가 여기 쌓입니다. 이 브라우저에 저장됩니다.</p>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn sm" id="btnDlAll" data-i18n="g.dlAll">전체 내려받기</button>
+      <button class="btn sm" id="btnSelNone" data-i18n="g.selNone">선택 해제</button>
+      <button class="btn sm" id="btnWipe" data-i18n="g.wipe">전체 삭제</button>
+    </div>
+    <div class="shots" id="shots"></div>
+    <div class="empty" id="galEmpty" data-i18n="g.none">아직 없습니다.</div>
+  </div>
+  <div class="card">
+    <h2 style="font-size:13.5px" data-i18n="g.cur">현재 기준</h2>
+    <div class="kv" id="anchorInfo"></div>
+    <div class="kv" style="margin-top:4px" id="refInfo"></div>
+    <div class="kv" style="margin-top:4px" id="pickInfo"></div>
+  </div>
+</aside>
+
+</div>
+<footer class="note"><span data-i18n="app.foot">AI는 제안을 하고, 결정은 내가 합니다. 무엇을 고정했고 무엇을 바꿨고 왜 이 버전을 골랐는지를 기록하세요.</span></footer>
+</div>
+
+<div id="status"></div>
+<div id="lb"><button class="close" id="lbClose">&times;</button><img id="lbImg" alt=""></div>
+<div id="cmp"><button class="close" id="cmpClose">&times;</button><div class="inner"><h3 id="cmpTitle"></h3><div class="pane" id="cmpPane"></div></div></div>
+
+<script>
+"use strict";
+/* ============================================================
+   선택 항목 테이블 — [프롬프트 조각, 한국어 라벨, English label]
+   그룹: [한국어 그룹명, English group name, [항목…]]
+   ============================================================ */
+
+const STYLES=[
+ ["회화 · 전통","Painting & traditional",[
+  ["children's book watercolor style","그림책 수채","Children's-book watercolour"],
+  ["loose ink and watercolour wash, visible brush edges","먹선 + 수채 번짐","Ink & watercolour wash"],
+  ["gouache painting style, flat matte colour","과슈, 불투명 매트","Gouache, flat matte"],
+  ["coloured pencil texture, visible paper grain","색연필, 종이결","Coloured pencil"],
+  ["charcoal and pastel, soft smudged edges","목탄 · 파스텔","Charcoal & pastel"],
+  ["woodblock print look, limited palette, visible carving marks","목판화","Woodblock print"],
+  ["risograph print look, two-colour misregistration, grainy","리소그래프 2도","Risograph, 2-colour"]
+ ]],
+ ["애니메이션","Animation",[
+  ["cel-shaded 2D animation style, clean outlines, flat colour","셀 애니메이션","Cel-shaded 2D"],
+  ["limited-animation TV style, bold outlines, simple shapes","리미티드 TV 애니","Limited TV animation"],
+  ["hand-drawn rough animation look, visible pencil lines","러프 작화 느낌","Rough pencil animation"],
+  ["cut-out paper animation look, layered flat shapes","컷아웃 종이","Cut-out paper"],
+  ["stop-motion puppet look, felt and clay materials, shallow depth of field","스톱모션 퍼펫","Stop-motion puppet"],
+  ["3D CG animation look, soft subsurface skin, studio lighting","3D CG 애니","3D CG animation"],
+  ["pixel art, limited palette, crisp pixels","픽셀 아트","Pixel art"]
+ ]],
+ ["만화 · 일러스트","Comics & illustration",[
+  ["manga line art, screentone shading","망가 스크린톤","Manga, screentone"],
+  ["webtoon style, clean digital lines, soft gradient shading","웹툰","Webtoon"],
+  ["graphic novel ink style, heavy black shadows","그래픽노블 잉크","Graphic-novel ink"],
+  ["vector flat illustration, geometric shapes, no outlines","벡터 플랫","Vector flat"],
+  ["storybook pastel illustration, soft edges","파스텔 동화풍","Pastel storybook"]
+ ]]
+];
+
+const SHOTSIZE=[
+ ["숏 크기","Shot size",[
+  ["extreme wide shot","익스트림 와이드","Extreme wide"],
+  ["wide shot, full body visible with the space around","와이드 (전신 + 공간)","Wide / establishing"],
+  ["full body shot, head to feet filling the frame","풀 숏 (전신 꽉)","Full shot"],
+  ["cowboy shot, from mid-thigh up","카우보이 (허벅지 위)","Cowboy shot"],
+  ["medium shot, waist up","미디엄 (허리 위)","Medium"],
+  ["medium close-up, chest up","미디엄 클로즈업 (가슴 위)","Medium close-up"],
+  ["close-up, the face filling the frame","클로즈업 (얼굴)","Close-up"],
+  ["extreme close-up of the eyes only","익스트림 클로즈업 (눈)","Extreme close-up"],
+  ["insert shot of a single object","인서트 (사물 하나)","Insert"],
+  ["two-shot, two characters in the frame","투 숏","Two-shot"],
+  ["over-the-shoulder shot","오버 더 숄더","Over-the-shoulder"]
+ ]]
+];
+
+const ANGLES=[
+ ["카메라 앵글","Camera angle",[
+  ["eye level","눈높이","Eye level"],
+  ["slightly low angle","살짝 로우앵글","Slightly low"],
+  ["low angle, looking up at the character","로우앵글 (올려다봄)","Low angle"],
+  ["worm's eye view, extreme low angle","웜즈아이 (극단 로우)","Worm's eye"],
+  ["slightly high angle","살짝 하이앵글","Slightly high"],
+  ["high angle, looking down at the character","하이앵글 (내려다봄)","High angle"],
+  ["bird's eye view, directly from above","버즈아이 (바로 위)","Bird's eye"],
+  ["dutch angle, tilted horizon","더치앵글 (기운 수평)","Dutch angle"]
+ ]]
+];
+
+const LENSES=[
+ ["렌즈","Lens",[
+  ["24mm wide-angle lens","24mm 광각","24mm wide"],
+  ["35mm lens","35mm 표준광각","35mm"],
+  ["50mm lens","50mm 표준","50mm standard"],
+  ["85mm portrait lens, compressed background","85mm 인물","85mm portrait"],
+  ["135mm telephoto lens, flat compressed background","135mm 망원","135mm telephoto"],
+  ["macro close focus","매크로","Macro"]
+ ]]
+];
+
+const DOF=[
+ ["심도","Depth of field",[
+  ["","지정 안 함","Not specified"],
+  ["shallow depth of field, background out of focus","얕은 심도 (뒤 흐림)","Shallow"],
+  ["deep focus, everything sharp","깊은 심도 (전부 선명)","Deep focus"]
+ ]]
+];
+
+const LIGHTS=[
+ ["기본","Basic",[
+  ["soft even lighting","부드럽고 고른 빛","Soft even"],
+  ["single key light from the left","왼쪽 키라이트","Key light, left"],
+  ["single key light from the right","오른쪽 키라이트","Key light, right"],
+  ["backlit, rim light on the shoulders","역광 + 림라이트","Backlit, rim light"]
+ ]],
+ ["광원 · 색온도","Source & colour temperature",[
+  ["window daylight from one side, 5600K","창 햇빛 5600K","Window daylight 5600K"],
+  ["fluorescent ceiling light, 4000K","형광등 4000K","Fluorescent 4000K"],
+  ["incandescent lamp, warm 3000K","백열등 3000K","Incandescent 3000K"],
+  ["overcast daylight, 7000K","흐린 날 7000K","Overcast 7000K"],
+  ["golden hour sunlight, long shadows","해질녘 긴 그림자","Golden hour"],
+  ["night, practical lights only","밤, 실내등만","Night, practicals"]
+ ]],
+ ["연출","Dramatic",[
+  ["top light from directly above","정수리 광","Top light"],
+  ["lit from below","아래에서 올라오는 빛","Under light"],
+  ["high key lighting, bright with low contrast","하이키 (밝고 평평)","High key"],
+  ["low key lighting, deep shadows and high contrast","로우키 (어둡고 강한 대비)","Low key"]
+ ]]
+];
+
+const BGS=[
+ ["무배경 (시트용)","Plain (for sheets)",[
+  ["plain light grey background","밝은 회색","Light grey"],
+  ["plain white background","흰색","White"],
+  ["plain mid-grey background with a soft contact shadow under the feet","중간 회색 + 접지 그림자","Mid-grey + contact shadow"],
+  ["character sheet grid background, light grey","캐릭터 시트 격자","Character-sheet grid"],
+  ["soft vertical gradient background, no objects","부드러운 그라데이션","Soft gradient"]
+ ]],
+ ["장면 배경","Scene",[
+  ["a simple interior behind the character, out of focus","실내, 아웃포커스","Interior, out of focus"],
+  ["outdoor daylight, out of focus","야외 낮, 아웃포커스","Outdoor, out of focus"],
+  ["a flat single-colour background","단색 배경","Flat single colour"]
+ ]]
+];
+
+/* 턴어라운드 뷰 — 4뷰 + 3/4 뒷면 + 위에서 */
+const VIEWS=[
+ ["front","front view, facing the camera straight on","정면","Front"],
+ ["threeq","3/4 front view, the body turned 45 degrees toward the camera","3/4 측면","3/4 front"],
+ ["side","side view, full profile, turned 90 degrees","옆면 (프로필)","Side (profile)"],
+ ["back","back view, facing directly away from the camera","뒷면","Back"],
+ ["threeqback","3/4 back view, the body turned 45 degrees away from the camera","3/4 뒷면","3/4 back"],
+ ["top","top-down view from directly above","위에서","Top-down"]
+];
+
+const EXPRESSIONS=[
+ ["기본","Everyday",[
+  ["relaxed face, eyes level, mouth closed and soft","무표정 (기본)","Neutral"],
+  ["corners of the mouth slightly raised, eyes calm","옅은 미소","Small smile"],
+  ["open-mouthed laugh, eyes squinting, head tilted back slightly","크게 웃음","Big laugh"],
+  ["eyelids lowered, chin resting on one hand, eyes looking sideways","지루함","Bored"],
+  ["eyebrows pulled together, lips slightly pursed, eyes fixed on one point","집중","Concentrating"],
+  ["eyelids half closed, shoulders dropped, mouth slightly open","지침 · 피곤","Exhausted"],
+  ["eyes closed, shoulders dropping, a long breath out through the mouth","안도","Relieved"],
+  ["face slack, eyes unfocused, mouth slightly open","멍함","Blank / stunned"]
+ ]],
+ ["강한 감정","Strong",[
+  ["eyes wide, mouth slightly open, shoulders pulled up","놀람","Surprised"],
+  ["eyes very wide, eyebrows high, mouth open, head pulled back","충격","Shocked"],
+  ["eyes lowered, lips pressed together, chin slightly trembling","참는 울음","Holding back tears"],
+  ["eyes squeezed shut, mouth open wide, tears on the cheeks","우는","Crying"],
+  ["jaw clenched, eyebrows pulled down, looking straight ahead","조용한 분노","Quiet anger"],
+  ["mouth wide open, eyebrows down hard, neck tense, leaning forward","터지는 분노","Shouting anger"],
+  ["eyes wide and darting, shoulders raised, hands near the chest","겁먹음","Scared"],
+  ["nose wrinkled, upper lip raised, head turned slightly away","역겨움","Disgusted"],
+  ["eyebrows raised in the middle, eyes lowered, shoulders dropped","실망","Disappointed"],
+  ["eyes looking away and down, cheeks flushed, shoulders drawn in","민망함","Embarrassed"],
+  ["chin slightly raised, chest out, a small closed-mouth smile","자랑스러움","Proud"],
+  ["one eyebrow raised, eyes narrowed, head tilted","의심","Suspicious"]
+ ]],
+ ["연기 노트","Acting notes",[
+  ["the eyes move up and to the side, then settle forward and the jaw sets — the moment a decision is made","생각 → 결심","Thinking, then deciding"],
+  ["the mouth held flat on purpose while the eyes give the feeling away","억누르는 중","Trying to hide it"],
+  ["caught mid-reaction, the body already moving but the face not yet caught up","반응 직전","Just before reacting"],
+  ["looking at something off-screen, the whole body following the gaze","화면 밖을 봄","Looking off-screen"]
+ ]]
+];
+
+const POSES=[
+ ["서 있기 · 걷기","Standing & walking",[
+  ["standing relaxed, weight on one leg, arms at the sides","편하게 서기","Standing relaxed"],
+  ["walking, contact pose, one foot forward and one foot back, arms swinging opposite","걷기 — 컨택트","Walk, contact"],
+  ["walking, passing pose, the legs together and one knee lifted","걷기 — 패싱","Walk, passing"],
+  ["running at full speed, both feet off the ground, arms pumping","달리기","Running"],
+  ["turning to look back over one shoulder, the body still facing forward","돌아보기","Looking back"]
+ ]],
+ ["동작","Action",[
+  ["jumping at the top of the arc, knees tucked up","점프 — 최고점","Jump, top of arc"],
+  ["landing from a jump, knees bent deep, one hand on the ground","착지","Landing"],
+  ["reaching up for something on a high shelf, on tiptoes","높은 곳에 손 뻗기","Reaching up"],
+  ["carrying something heavy with both arms, leaning back to balance","무거운 것 들기","Carrying something heavy"],
+  ["pushing a heavy object, the whole body leaning into it","밀기","Pushing"],
+  ["falling backwards, arms out, off balance","넘어지기","Falling backwards"]
+ ]],
+ ["정적 · 감정","Still & emotional",[
+  ["sitting on a chair, leaning forward with elbows on the knees","의자에 앉아 숙이기","Sitting, leaning forward"],
+  ["sitting on the floor with the knees pulled up to the chest","바닥에 무릎 안고 앉기","Sitting on the floor"],
+  ["crouching down, looking at something small on the ground","쭈그려 앉아 들여다보기","Crouching"],
+  ["hiding behind something, only the head and one hand visible","숨기","Hiding"],
+  ["lying on the stomach, chin resting on both hands","엎드려 턱 괴기","Lying on the stomach"]
+ ]]
+];
+
+const SILHOUETTES=[
+ ["실루엣 테스트","Silhouette test",[
+  ["Render this character as a solid black silhouette on a plain white background. No interior detail, no face, no outlines — only the outer shape. Keep the exact proportions, costume shape and the signature prop readable in the outline.","기본 실루엣","Plain silhouette"],
+  ["Render this character as a solid black silhouette on a plain white background, in three different poses side by side. No interior detail. The character must stay recognisable in every one.","3포즈 실루엣 비교","Three poses, compared"],
+  ["Show the character twice side by side at the same size: on the left the full colour drawing, on the right the same pose as a solid black silhouette on white. No interior detail in the silhouette.","원본 + 실루엣 나란히","Original beside silhouette"],
+  ["Render this character as a solid black silhouette on a plain white background. Then outline in red only the parts of the outline that are hard to read. Keep the proportions exact.","약한 부분 표시","Mark the weak spots"]
+ ]]
+];
+
+const COSTUMES=[
+ ["계절 · 날씨","Season & weather",[
+  ["a winter version of the same outfit — coat, scarf, warmer layers","겨울옷","Winter"],
+  ["a summer version of the same outfit — short sleeves, lighter fabric","여름옷","Summer"],
+  ["soaked in the rain, hair and clothes wet and clinging","비에 젖음","Soaked in rain"]
+ ]],
+ ["상황","Situation",[
+  ["in a school uniform","교복","School uniform"],
+  ["in pyjamas, ready for bed","잠옷","Pyjamas"],
+  ["in formal clothes for an important occasion","정장 · 격식","Formal"],
+  ["in work clothes, sleeves rolled up","작업복","Work clothes"],
+  ["clothes dirty and torn after something went wrong","더럽고 찢어진 옷","Dirty and torn"]
+ ]]
+];
+
+/* 수정 · 되돌리기 — [프롬프트 생성 키, 한국어, English] */
+const FIXES=[
+ ["무엇이 바뀌었나","What changed",[
+  ["generic","바뀐 항목 되돌리기","Restore what changed"],
+  ["only","한 가지만 바꾸기","Change one thing only"],
+  ["face","얼굴이 다른 사람이 됨","The face became someone else"],
+  ["hair","헤어 길이 · 모양이 바뀜","The hair changed"],
+  ["colour","의상 색이 바뀜","The costume colour changed"],
+  ["prop","고정 소품이 사라짐","The signature prop vanished"],
+  ["age","나이가 달라 보임","The character looks older or younger"],
+  ["proportion","키 · 비율이 바뀜","The proportions changed"],
+  ["style","그림체가 바뀜","The drawing style drifted"]
+ ]],
+ ["화면 · 빛","Frame & light",[
+  ["bg","배경이 바뀜","The background changed"],
+  ["lightdir","조명 방향이 바뀜","The light direction changed"],
+  ["flip","좌우가 뒤집힘","The image got mirrored"],
+  ["crop","프레임이 잘림","The frame is cropped wrong"],
+  ["scale","인물이 너무 작게 · 크게 나옴","The character is too small or too large"]
+ ]],
+ ["마감","Finish",[
+  ["hands","손이 이상함","The hands are wrong"],
+  ["text","글자 · 워터마크가 들어감","Text or a watermark appeared"],
+  ["extra","시키지 않은 디테일이 추가됨","Details were added that I did not ask for"],
+  ["messy","선이 지저분함","The line work is messy"],
+  ["free","직접 쓰기 (빈 양식)","Write it myself (blank form)"]
+ ]]
+];
+
+/* ============================================================
+   참조 이미지로 캐릭터 수정 (기준 1장 + 참조 N장)
+   ============================================================ */
+const REFEDITS=[
+ ["참조에서 가져오기","Take from the reference",[
+  ["costume","이 참조의 의상을 입히기","Put the reference's costume on my character"],
+  ["pose","이 참조의 포즈만 가져오기","Take only the pose"],
+  ["expr","이 참조의 표정만 가져오기","Take only the facial expression"],
+  ["hair","이 참조의 헤어스타일로","Take the hairstyle"],
+  ["prop","이 참조의 소품 들려주기","Give my character the object"]
+ ]],
+ ["내가 만든 다른 이미지에 맞추기","Match my own other image",[
+  ["technique","그림체 · 선 · 채색을 맞추기","Match the rendering technique"],
+  ["palette","색 팔레트를 맞추기","Match the colour palette"],
+  ["light","조명을 맞추기","Match the lighting"],
+  ["grain","질감 · 거칠기를 맞추기","Match the texture and grain"]
+ ]],
+ ["둘을 한 화면에","Both in one frame",[
+  ["lineup","키 비교 라인업","Height-comparison line-up"],
+  ["twoshot","둘이 함께 있는 한 장면","One scene with both characters"],
+  ["free","직접 쓰기 (빈 양식)","Write it myself (blank form)"]
+ ]]
+];
+
+/* ============================================================
+   업로드한 배경 이미지 활용 (참조가 곧 1번 이미지)
+   ============================================================ */
+const BGUSES=[
+ ["내 스타일의 배경으로","Turn it into my background",[
+  ["stylize","사진을 내 그림체의 배경으로","Photo → a background in my style"],
+  ["plate","인물 넣을 빈 배경판으로","Make it an empty background plate"],
+  ["linework","배경 선화로 정리","Reduce it to background line art"]
+ ]],
+ ["이 공간을 고치기","Change this space",[
+  ["time","시간대만 바꾸기","Change the time of day only"],
+  ["season","계절 · 날씨만 바꾸기","Change the season and weather only"],
+  ["era","레이아웃은 두고 시대 · 재질 바꾸기","Keep the layout, change the period"],
+  ["lived","생활 흔적 더하기","Add signs that someone lives here"],
+  ["empty","사람 지우기","Remove the people"],
+  ["declutter","특정 물건 지우기","Remove one specific object"],
+  ["clean","글자 · 간판 · 로고 지우기","Remove text, signage and logos"]
+ ]],
+ ["카메라","Camera",[
+  ["angle","같은 공간을 다른 앵글에서","Same space, different angle"],
+  ["free","직접 쓰기 (빈 양식)","Write it myself (blank form)"]
+ ]]
+];
+
+
+/* ============================================================
+   i18n
+   ============================================================ */
+const T={
+"app.name":["캐릭터 메이커","Character Maker"],
+"app.sub":["AI 캐릭터·배경 개발 실습 도구 · Nano Banana","A studio tool for AI character & environment development · Nano Banana"],
+"app.foot":["AI는 제안을 하고, 결정은 내가 합니다. 무엇을 고정했고 무엇을 바꿨고 왜 이 버전을 골랐는지를 기록하세요.","The AI proposes. You decide. Record what you locked, what you changed, and why you chose this version."],
+"m.made":["생성","Made"],"m.cost":["예상 비용","Est. cost"],
+"nav.0":["설정","Setup"],"nav.1":["캐릭터 카드","Character"],"nav.2":["같은 인물 유지","Consistency"],"nav.3":["공간 · 합성","Environment"],"nav.4":["시트 · 기록","Sheet & log"],
+"b.gen":["이미지 생성","Generate"],"b.copy":["프롬프트만 복사","Copy prompt only"],"b.batch":["선택한 것 한 번에 생성","Generate all selected"],
+"b.none":["선택 해제","Clear selection"],
+"b.copyAll":["프롬프트 복사","Copy prompts"],
+"r.title":["참조 이미지로 수정하기","Edit with a reference image"],
+"r.hint":["갤러리에서 [참조]로 담거나 직접 올린 이미지를 함께 보냅니다. 기준 이미지가 1번, 참조가 2번부터입니다.","Sends your anchor together with images you marked [Ref] in the gallery or uploaded here. The anchor is image 1; the references follow."],
+"r.warn":["<b>참조는 내가 만든 것이거나 내가 찍은 것이어야 합니다.</b> 다른 작가의 그림을 올려 그림체를 가져오는 것은 이 수업의 기준에서 금지입니다. 그림체 맞추기는 <b>내가 앞서 만든 다른 컷</b>에 맞출 때 쓰세요 — 한 세트를 같은 손으로 그린 것처럼 만드는 연습입니다.","<b>A reference must be your own work or your own photograph.</b> Uploading another artist's drawing to lift their style is not acceptable in this course. Use style matching against <b>an earlier image of your own</b> — the exercise is making one set look like it came from one hand."],
+"r.up":["참조 이미지 올리기","Upload a reference"],
+"r.upSub":["또는 갤러리에서 [참조]를 누르세요 · 최대 3장","or hit [Ref] in the gallery · up to 3"],
+"r.what":["무엇을 가져올까","What to take from it"],
+"r.why":["<b>참조에서 \"무엇만\" 가져올지 정하는 게 전부입니다.</b> 그냥 두 장을 넣으면 모델은 둘을 섞어 제3의 캐릭터를 만듭니다. 의상만, 포즈만, 조명만 — 가져올 것 하나를 못 박고 나머지는 1번을 유지하라고 해야 같은 인물이 남습니다.","<b>Everything here depends on naming the ONE thing you are taking.</b> Hand the model two images with no instruction and it will average them into a third character. Costume only, pose only, light only — name it, then say image 1 holds for everything else."],
+"bg.title":["배경 이미지 올려서 쓰기","Work from an uploaded background"],
+"bg.hint":["직접 찍은 사진이나 그린 배경을 올려 고치거나, 내 그림체의 배경으로 옮깁니다. 참조가 여러 장이면 썸네일을 눌러 작업할 한 장을 고르세요.","Upload a photo you took or a background you drew, then change it or carry it into your own style. With several references loaded, click a thumbnail to choose which one you are working on."],
+"bg.warn":["<b>내가 찍은 사진이나 내가 그린 그림만 올리세요.</b> 영화 스틸, 다른 작가의 배경화, 인터넷에서 받은 이미지는 쓰지 않습니다. 사진에 사람이 찍혀 있다면 먼저 [사람 지우기]로 비우고 쓰세요.","<b>Upload only photographs you took or artwork you drew.</b> Film stills, another artist's background painting and images pulled off the internet are not acceptable. If there are people in your photo, clear them with [Remove the people] first."],
+"bg.up":["배경 이미지 올리기","Upload a background"],
+"bg.upSub":["내가 찍은 사진 · 내가 그린 배경 · 세트 스케치","your own photo · your own painting · a set sketch"],
+"bg.what":["무엇을 할까","What to do with it"],
+"bg.makeAnchor":["이 배경을 기준으로","Make this the anchor"],
+"bg.thisOne":["이 공간","this space"],
+"bg.using":["이 한 장만 보냅니다 — 다른 참조는 안 갑니다","Only this one image is sent — other references are not"],
+"bg.none":["배경 이미지 없음","No background image"],
+"msg.bgPick":["이 이미지를 공간으로 씁니다.","That image is now the space being worked on."],
+"bg.why":["<b>사진을 그대로 배경으로 쓰면 캐릭터와 따로 놉니다.</b> 그림체가 다르고, 디테일의 밀도가 다르기 때문입니다. [사진을 내 그림체의 배경으로]를 먼저 한 번 거친 다음 합성하세요. 레이아웃과 빛은 사진에서 가져오고, 그리는 방식만 내 것으로 바꾸는 것입니다.","<b>A photograph dropped in behind a drawing never sits right.</b> The rendering differs and so does the density of detail. Run it through [Photo → a background in my style] first, then composite. You keep the layout and the light from the photo, and change only how it is drawn."],
+"st.ref":["L2 참조로 수정","L2 reference edit"],
+"st.bg":["L3 배경 이미지","L3 background image"],
+"st.upRef":["참조 업로드","Reference upload"],
+"st.upBg":["배경 업로드","Background upload"],
+"msg.noref":["참조 이미지가 없습니다. 갤러리에서 [참조]를 누르거나 직접 올리세요.","No reference image. Hit [Ref] in the gallery or upload one."],
+"msg.ref3":["참조는 최대 3장까지입니다.","Up to three references."],
+"msg.bgAnchor":["이 배경을 기준 이미지로 지정했습니다. 아래 3샷 버튼을 쓸 수 있습니다.","That background is now the anchor. The three-shot buttons below will work on it."],
+
+"b.copied":["복사함","copied"],
+"e.preview":["보낼 프롬프트","What will be sent"],
+"e.previewHint":["선택한 항목이 여기 그대로 조립됩니다. 고치면 고친 내용이 전송됩니다. 키가 없으면 복사해서 무료 Gemini 앱에 쓰세요.","Everything you ticked is assembled here. Edit it and the edit is what gets sent. With no API key, copy it into the free Gemini app."],"b.selected":["선택","Selected"],"b.drop":["클릭하거나 이미지를 끌어다 놓기","Click, or drop an image here"],
+"opt.custom":["✏️ 직접 입력","✏️ Write my own"],
+"set.key":["API 키 연결","Connect your API key"],
+"set.keyHint":["키는 이 브라우저에만 저장됩니다. 생성 요청은 내 브라우저에서 Google로 바로 갑니다.","Your key is stored only in this browser. Requests go straight from your browser to Google."],
+"set.paidWarn":["<b>이미지 생성 API는 무료 등급이 없습니다.</b> Google AI Studio에서 키를 만든 뒤 결제를 활성화해야 작동합니다. 1장당 약 $0.034(1K) — 50장이면 약 $1.7입니다. 결제를 쓰지 않으려면 <b>[프롬프트만 복사]</b>로 무료 Gemini 앱에 붙여 넣으세요. 실습 내용은 동일합니다.","<b>There is no free tier for the image-generation API.</b> Create a key in Google AI Studio and enable billing. About $0.034 per image at 1K — 50 images is roughly $1.70. If you would rather not use billing, hit <b>[Copy prompt only]</b> and paste into the free Gemini app. The exercise is identical either way."],
+"set.apiKey":["API 키","API key"],"set.save":["키 저장","Save key"],"set.test":["연결 테스트","Test connection"],"set.del":["키 삭제","Delete key"],
+"set.model":["모델과 출력","Model & output"],"set.modelL":["모델","Model"],"set.aspect":["화면비","Aspect ratio"],"set.size":["해상도","Resolution"],
+"set.n":["한 번에 만들 장수","Images per request"],"set.api":["API 방식","API mode"],"set.auto":["자동","Auto"],
+"set.neg":["금지 항목","Negative prompt"],"set.negLite":["— 모든 프롬프트 끝에 붙습니다","— appended to every prompt"],
+"set.negReset":["기본값으로","Reset to default"],
+"set.negTip":["손이 자꾸 이상하면 natural hands, five fingers 를 여기 말고 본문 앞쪽에 넣으세요.","If hands keep failing, put natural hands, five fingers near the FRONT of the main prompt, not here."],
+"set.howto":["키 발급 순서","How to get a key"],
+"set.keyNone":["저장된 키 없음","No key saved"],"set.keySaved":["키 저장됨","Key saved"],
+"c.card":["캐릭터 설정 카드","Character card"],
+"c.cardHint":["눈으로 확인 가능한 항목만 적습니다. 비워 둔 칸은 AI가 매번 다르게 만듭니다.","Write only what a viewer could point at. Anything you leave blank, the AI will reinvent every time."],
+"c.why":["<b>왜 이미지보다 카드가 먼저인가.</b> \"귀여운 여자아이\"는 AI에게 정보가 거의 없는 문장입니다. 매번 다른 사람이 나오는 건 툴 문제가 아니라 <b>아직 캐릭터를 정하지 않았기 때문</b>입니다.","<b>Why the card comes before the image.</b> \"A cute girl\" carries almost no information. If you get a different person every time, that is not the tool failing — it means <b>you have not decided on the character yet</b>."],
+"c.lock":["고정도","Locked"],
+"c.who":["나이 · 성별","Age & gender"],"c.build":["체형 · 키","Build & height"],"c.buildE":["비교로 적기","write it as a comparison"],
+"c.hair":["헤어","Hair"],"c.hairE":["길이 + 모양 + 색 이름","length + shape + a colour name"],
+"c.eyes":["눈","Eyes"],"c.eyesE":["모양 + 색","shape + colour"],
+"c.top":["상의","Top"],"c.topE":["종류 + 색 + 상태","item + colour + condition"],
+"c.bottom":["하의","Bottom"],"c.bottomE":["종류 + 색 + 길이","item + colour + length"],
+"c.shoes":["신발","Shoes"],
+"c.prop":["고정 소품 1개","One signature prop"],"c.propE":["일관성 확인에 가장 유용","your fastest consistency check"],
+"c.propWhy":["<b>고정 소품을 꼭 하나 넣으세요.</b> 빨간 머리끈, 깨진 보온병, 노란 가방 같은 것. 다음 단계에서 \"같은 캐릭터가 유지됐는가\"를 판단할 때 얼굴보다 이 소품이 훨씬 빨리 답을 줍니다.","<b>Give the character one fixed prop.</b> A red hair tie, a dented flask, a yellow bag. When you later ask \"is this still the same character?\", the prop answers faster than the face does."],
+"c.styleSec":["스타일","Style"],"c.styleLite":["— 작가·스튜디오 이름 대신 기법 용어로","— use technique terms, never an artist's or studio's name"],
+"c.identity":["한 줄 정체","One-line identity"],"c.identityE":["카드 기록용 · 프롬프트에는 안 들어감","for your card only — not sent to the model"],
+"c.shotSec":["숏 · 카메라 · 빛","Shot, camera & light"],
+"c.shotHint":["다섯 축을 따로 고릅니다. 각 칸의 마지막 항목에서 직접 쓸 수 있습니다.","Each axis is chosen separately. The last option in every list lets you write your own."],
+"c.sz":["숏 크기","Shot size"],"c.vw":["캐릭터가 향한 방향","Which way the character faces"],"c.ag":["카메라 앵글","Camera angle"],
+"c.ln":["렌즈","Lens"],"c.df":["심도","Depth of field"],"c.lt":["조명","Lighting"],"c.bg":["배경","Background"],
+"c.pose":["포즈","Pose"],"c.poseE":["기준 이미지는 차렷에 가까운 중립 포즈가 좋습니다","for an anchor image, keep the pose neutral and open"],
+"c.propFirst":["고정 소품을 문장 맨 앞으로","Move the signature prop to the front of the sentence"],
+"c.example":["예시 채우기","Fill with the example"],"c.clear":["비우기","Clear"],
+"c.orderWhy":["<b>생성 모델은 문장 앞쪽 단어에 더 크게 반응합니다.</b> 소품이나 옷 색이 계속 무시되면 위 체크박스를 켜고 다시 생성해 보세요. 결과가 달라지는 걸 직접 확인하는 게 이 단계의 과제입니다.","<b>These models weight the front of the sentence more heavily.</b> If the prop or a costume colour keeps getting ignored, tick the box above and generate again. Seeing that difference for yourself is the exercise."],
+"c.base":["기준 프롬프트","Base prompt"],
+"c.baseHint":["카드 내용이 자동 조립됩니다. 직접 고치면 고친 내용이 전송됩니다.","Assembled from your card. Edit it freely — what you see is what gets sent."],
+"c.l1done":["<b>Level 1 완료 기준.</b> 가장 잘 나온 정면 전신 1장을 골라 갤러리에서 <b>[기준]</b>으로 지정하세요. 얼굴·의상·소품이 가장 선명한 것을 고릅니다. 이 1장이 앞으로 모든 생성의 기준이 됩니다.","<b>To finish Level 1</b>, pick your best full-body front image and mark it <b>[Anchor]</b> in the gallery. Choose the one where the face, costume and prop read most clearly. Everything from here starts from that single image."],
+"c.sketch":["내 사진 · 스케치에서 시작하기","Start from your own drawing or photo"],
+"c.sketchHint":["직접 그린 스케치나 본인 사진을 올려 캐릭터로 옮깁니다.","Upload a sketch you drew, or a photo of yourself, and carry it into a character."],
+"c.sketchWarn":["<b>실존 인물의 사진은 넣지 마세요.</b> 본인 사진이나 직접 그린 그림만 사용합니다. 친구·연예인·타인의 사진을 레퍼런스로 쓰는 것은 이 수업의 기준에서 금지입니다.","<b>Do not upload photographs of other real people.</b> Your own face or your own drawing only. Using a friend, a classmate or a public figure as reference is not acceptable in this course."],
+"sk.style":["내 스타일로 다시 그리기","Redraw in my style"],"sk.clean":["스케치를 선화로 정리","Sketch → clean line art"],
+"sk.color":["선화에 채색하기","Colour the line art"],"sk.turn":["스케치를 전신 캐릭터로","Sketch → full-body character"],
+"e.anchor":["기준 이미지","Anchor image"],
+"e.anchorHint":["갤러리에서 고르거나 직접 올립니다. 앞으로 모든 생성이 이 1장에서 출발합니다.","Pick one in the gallery or upload your own. Everything from here starts from this single image."],
+"e.anchorUp":["기준 이미지 올리기","Upload an anchor image"],
+"e.anchorWhy":["<b>매번 기준 이미지에서 출발하세요.</b><br>기준 → 측면 (O) · 기준 → 측면 → 뒷모습 (X)<br>직전 결과물을 다시 기준으로 삼으면 오차가 누적되다가 완전히 다른 캐릭터가 됩니다.","<b>Always start from the anchor.</b><br>anchor → side (yes) · anchor → side → back (no)<br>If you keep feeding the last result back in, the error compounds until it is a different character."],
+"e.lockSec":["이 기준에서 유지할 것","What to hold constant"],
+"e.lockLite":["— 아래 편집 지시에 자동으로 들어갑니다 (실루엣 테스트는 형태만 사용)","— inserted into the edit instructions below (the silhouette test uses shape only)"],
+"e.keepFromCard":["설정 카드에서 가져오기","Pull from my card"],
+"e.keepTip":["업로드한 이미지가 설정 카드와 다르면 여기를 직접 고쳐 쓰세요.","If the image you uploaded differs from your card, rewrite this line by hand."],
+"e.turn":["턴어라운드","Turnaround"],
+"e.editWhy":["<b>이 단계의 핵심 한 가지.</b> \"새로 만들어 달라\"가 아니라 <b>\"이걸 고쳐 달라\"</b>고 말합니다.<br>❌ <code>Draw this character from the side</code> → 새 캐릭터를 만듭니다<br>✅ <code>Keep this exact character and turn her to show a side view</code> → 같은 인물을 돌려놓습니다","<b>The one thing that matters here.</b> Do not ask for something new — ask for <b>this one, edited</b>.<br>❌ <code>Draw this character from the side</code> → you get a new character<br>✅ <code>Keep this exact character and turn her to show a side view</code> → you get the same person, rotated"],
+"e.viewFree":["직접 쓰는 뷰","Write your own view"],
+"e.viewFreeE":["영어로 — 예: turned 30 degrees, looking down at the floor","in English — e.g. turned 30 degrees, looking down at the floor"],
+"e.view4":["4뷰 전체 선택","Select the 4 core views"],
+"e.expr":["표정","Expressions"],
+"e.exprHint":["감정 단어가 아니라 몸의 상태로 적혀 있습니다. 그대로 쓰거나 아래에서 직접 쓰세요.","Each one is written as a body state, not an emotion word. Use them as they are, or write your own below."],
+"e.exprFree":["직접 쓰는 표정","Write your own expression"],
+"e.exprFreeE":["영어로, 몸의 상태로 — 예: one eyebrow twitching, trying not to smile","in English, as a body state — e.g. one eyebrow twitching, trying not to smile"],
+"e.exprWhy":["<b>AI는 <code>sad</code>를 해석하지 못하지만 <code>eyes lowered</code>는 그릴 수 있습니다.</b> 이건 AI 기술이 아니라 애니메이션 연기 원리입니다 — 감정은 몸으로만 보입니다.","<b>The model cannot interpret <code>sad</code>, but it can draw <code>eyes lowered</code>.</b> That is not an AI trick — it is animation acting. Emotion is only ever visible as a body."],
+"e.pose":["액션 포즈 시트","Action pose sheet"],
+"e.poseHint":["의상·소품·그림체는 그대로 두고 포즈만 바꿉니다. 실루엣이 무너지는 지점이 여기서 드러납니다.","Costume, props and drawing style stay fixed; only the pose changes. This is where a weak silhouette shows itself."],
+"e.poseFree":["직접 쓰는 포즈","Write your own pose"],
+"e.poseFreeE":["영어로 — 예: kneeling down to tie a shoelace","in English — e.g. kneeling down to tie a shoelace"],
+"e.sil":["실루엣 테스트","Silhouette test"],
+"e.silWhy":["<b>캐릭터 디자인의 가장 오래된 검증법입니다.</b> 색과 디테일을 모두 지우고 바깥 형태만 남겼을 때도 누구인지 알아볼 수 있어야 합니다. 알아볼 수 없다면 문제는 채색이 아니라 <b>실루엣 설계</b>에 있습니다 — Level 1 카드로 돌아가세요.","<b>The oldest test in character design.</b> Strip the colour and the detail away; if the outer shape alone still reads as your character, the design holds. If it does not, the problem is not the rendering — it is the <b>silhouette</b>, and that sends you back to the Level 1 card."],
+"e.cos":["의상 · 소품 베리에이션","Costume & prop variations"],
+"e.cosHint":["옷이 바뀌어도 같은 사람으로 보이는지, 고정 소품이 살아남는지 확인합니다.","Check whether the character survives a change of clothes — and whether the signature prop survives with them."],
+"e.cosFree":["직접 쓰는 의상","Write your own costume"],
+"e.fix":["수정 · 되돌리기","Fixing & restoring"],
+"e.fixHint":["증상을 고르면 그 증상에 맞는 지시문이 들어갑니다. 대괄호는 내 내용으로 바꿔야 생성됩니다.","Pick the symptom and the matching instruction appears. Replace anything in [brackets] before generating."],
+"e.blank":["빈 양식","Blank form"],"e.patterns":["꼭 익혀 둘 영어 패턴 5개","Five sentence patterns worth memorising"],
+"e.rubric":["자가 채점","Self-assessment"],
+"e.rubricHint":["시트를 한 화면에 모은 뒤 1~5점으로 채점합니다. 점수는 기록에 함께 저장됩니다.","Lay the sheet out in one view, then score 1–5. Your scores are saved with the log."],
+"e.rubricNote":["가장 크게 무너진 지점 한 문장","Where it broke down worst, in one sentence"],
+"r.0":["실루엣이 유지되는가","Does the silhouette hold?"],"r.1":["의상 색이 유지되는가","Do the costume colours hold?"],
+"r.2":["고정 소품이 남아 있는가","Is the signature prop still there?"],"r.3":["얼굴 비율이 유지되는가","Do the facial proportions hold?"],
+"r.4":["표정이 바뀌어도 같은 인물로 보이는가","Is it still the same person once the expression changes?"],
+"l.card":["공간 설정 카드","Environment card"],
+"l.why":["<b>배경은 인물 뒤에 까는 그림이 아닙니다.</b> 대사 없이 인물을 설명하는 증거입니다. 방이 어질러져 있는지, 벽지가 몇 년 됐는지, 창밖이 밝은지 — 전부 캐릭터에 대한 정보입니다.","<b>A background is not wallpaper behind a character.</b> It is evidence about that character, delivered without dialogue. Whether the room is a mess, how old the wallpaper is, what the window shows — all of it is characterisation."],
+"l.structure":["구조 · 크기","Structure & size"],"l.wear":["생활 흔적","Signs of use"],"l.wearE":["무엇이 닳아 있는가","what has worn down"],
+"l.era":["시대 · 재질","Period & materials"],"l.light":["조명","Light"],"l.lightE":["색온도를 숫자로","give the colour temperature as a number"],
+"l.trace":["캐릭터가 남긴 흔적 하나","One trace the character left"],"l.traceE":["빈 방을 누군가의 방으로 만드는 항목","this is what turns an empty room into someone's room"],
+"l.anchorline":["기준점 — 180도 법칙","Fixed reference — the 180-degree rule"],
+"l.anchorHint":["같은 공간을 여러 번 생성하면 AI가 좌우를 뒤집습니다. 기준점을 정해 모든 프롬프트에 같은 문장으로 넣습니다.","Generate the same room a few times and the model will mirror it. Fix a reference point and repeat that exact sentence in every prompt."],
+"l.noPeople":["No people — 공간을 먼저 완성","No people — finish the space first"],
+"l.prompt":["공간 프롬프트","Environment prompt"],"l.genEmpty":["빈 공간 생성","Generate the empty space"],
+"l.shots":["같은 공간, 3가지 샷","One space, three shots"],
+"l.shotsHint":["빈 공간 이미지를 기준으로 지정한 뒤 고르세요.","Mark your empty-space image as the anchor first."],
+"l.wide":["와이드 · establishing","Wide · establishing"],"l.medium":["미디엄 · 행동과 대화","Medium · action & dialogue"],
+"l.insert":["인서트 · 디테일 하나","Insert · one detail"],"l.flip":["좌우가 뒤집혔을 때","When it got mirrored"],
+"l.combo":["캐릭터 + 공간 합성","Character + environment"],
+"l.comboHint":["기준 이미지가 캐릭터(1번), 참조가 공간(2번)입니다. 공간을 [참조]로 담으세요.","Your anchor is the character (image 1); the reference is the space (image 2). Mark the space as [Ref]."],
+"l.clearRef":["참조 비우기","Clear references"],
+"l.action":["무엇을 하고 있는가","What is the character doing"],
+"l.actionE":["영어로 — 카메라를 보지 않는 자세가 자연스럽습니다","in English — not looking at the camera usually reads better"],
+"l.place":["두 이미지 합성하기","Combine the two images"],"l.lightFix":["인물만 붕 떠 보일 때","The character floats"],
+"l.shadowFix":["그림자가 없을 때","No shadow"],"l.gradeFix":["색감이 따로 놀 때","The colour does not match"],
+"l.comboWhy":["<b>빛의 방향, 그림자, 색감</b> — 합성이 어색한 이유는 거의 언제나 이 셋 중 하나입니다. AI 때문이 아니라 원래 미술에서 그렇습니다. 이 셋을 말로 지적할 수 있게 되는 게 이 단계의 진짜 목표입니다.","<b>Light direction, shadow, colour.</b> A composite almost always fails on one of those three. That is not an AI problem — it is a picture-making problem, and it predates all of this. Learning to name which one is wrong is the actual goal of this level."],
+"s.sheet":["모델 시트 만들기","Build a model sheet"],
+"s.sheetHint":["갤러리에서 [선택]한 이미지를 한 장의 시트로 조판합니다. 제출용 파일이 바로 나옵니다.","Lays out the images you marked [Pick] in the gallery as one sheet — the file you hand in."],
+"s.title":["시트 제목","Sheet title"],"s.cols":["가로 칸 수","Columns"],"s.cell":["칸 크기","Cell size"],
+"s.labels":["파일명 표시","Show filenames"],"s.dark":["어두운 배경","Dark background"],
+"s.build":["시트 조판","Lay out"],"s.save":["PNG 저장","Save PNG"],
+"s.cmp":["나란히 비교","Compare side by side"],
+"s.cmpHint":["[선택]한 2~4장을 크게 놓고 봅니다. 작은 썸네일로는 일관성이 판단되지 않습니다.","Puts 2–4 picked images up large. You cannot judge consistency from thumbnails."],
+"s.cmpOpen":["비교 화면 열기","Open compare view"],
+"s.log":["수정 이력","Revision log"],
+"s.logHint":["생성할 때마다 자동으로 기록됩니다. 결과물보다 이 기록이 평가 대상입니다.","Written automatically on every generation. This log, more than the pictures, is what gets assessed."],
+"s.md":["수정 이력 (.md)","Revision log (.md)"],"s.csv":["CSV","CSV"],"s.clearLog":["기록 비우기","Clear log"],
+"s.time":["시각","Time"],"s.step":["단계","Stage"],"s.file":["파일명","Filename"],"s.modelc":["모델","Model"],"s.prompt":["프롬프트","Prompt"],
+"s.noLog":["아직 기록이 없습니다.","Nothing logged yet."],
+"s.check":["제출 점검","Submission check"],
+"s.why":["왜 이 버전을 골랐는가","Why you chose this version"],"s.whyE":["이 줄이 가장 중요합니다","this line matters most"],
+"g.gal":["갤러리","Gallery"],
+"g.galHint":["생성한 이미지가 여기 쌓입니다. 이 브라우저에 저장됩니다.","Everything you generate collects here, stored in this browser."],
+"g.dlAll":["전체 내려받기","Download all"],"g.selNone":["선택 해제","Clear picks"],"g.wipe":["전체 삭제","Delete all"],
+"g.none":["아직 없습니다.","Nothing yet."],"g.cur":["현재 기준","Current references"],
+"g.anchor":["기준","Anchor"],"g.ref":["참조","Ref"],"g.pick":["선택","Pick"],"g.dl":["저장","Save"],
+"ck.0":["캐릭터 설정 카드 9개 항목이 전부 채워졌다","All 9 character-card fields are filled in"],
+"ck.1":["기준 이미지를 지정했다","An anchor image is set"],
+"ck.2":["턴어라운드 4뷰가 있다","All four turnaround views exist"],
+"ck.3":["표정이 4종 이상 있다","At least four expressions exist"],
+"ck.4":["실루엣 테스트를 했다","A silhouette test was run"],
+"ck.5":["모델 시트를 한 장으로 조판했다","The model sheet has been laid out as one image"],
+"ck.6":["공간 설정 카드와 기준점 문장이 채워졌다","The environment card and the fixed-reference sentence are filled in"],
+"ck.7":["자가 채점표를 채웠다","The self-assessment is complete"],
+"ck.8":["왜 이 버전을 골랐는지 적었다","You wrote down why you chose this version"],
+"st.l1":["L1 기준 이미지","L1 anchor"],"st.sketch":["L1 내 이미지 활용","L1 from my image"],"st.up":["L2 업로드한 기준","L2 uploaded anchor"],
+"st.view":["L2 턴어라운드","L2 turnaround"],"st.expr":["L2 표정","L2 expression"],"st.pose":["L2 액션 포즈","L2 action pose"],
+"st.sil":["L2 실루엣","L2 silhouette"],"st.cos":["L2 의상 베리에이션","L2 costume variation"],"st.fix":["L2 수정","L2 fix"],
+"st.loc":["L3 빈 공간","L3 empty space"],"st.lshot":["L3 공간 3샷","L3 space shots"],"st.combo":["L3 합성","L3 composite"],
+"msg.copied":["복사했습니다. 무료 Gemini 앱에 붙여 넣으세요.","Copied. Paste it into the free Gemini app."],
+"msg.nocopy":["복사가 막혔습니다. 직접 선택해 복사하세요.","Copy was blocked. Select the text and copy it by hand."],
+"msg.empty":["프롬프트가 비어 있습니다.","The prompt is empty."],
+"msg.nokey":["API 키가 없습니다. 설정 탭에서 키를 넣거나 [프롬프트만 복사]를 쓰세요.","No API key. Add one in Setup, or use [Copy prompt only]."],
+"msg.noanchor":["기준 이미지를 먼저 지정하세요.","Set an anchor image first."],
+"msg.brackets":["프롬프트의 [대괄호] 부분을 내 내용으로 바꿔 주세요.","Replace the [bracketed] part with your own words first."],
+"msg.nosel":["선택된 항목이 없습니다.","Nothing is selected."],
+"msg.done":["장 생성했습니다.","images generated."],
+"msg.anchorSet":["기준 이미지를 바꿨습니다. 앞으로 이 1장에서 출발합니다.","Anchor changed. Everything now starts from this image."],
+"msg.pick2":["비교하려면 갤러리에서 2장 이상 [선택]하세요.","Pick at least two images in the gallery to compare."],
+"msg.pickSheet":["시트에 넣을 이미지를 갤러리에서 [선택]하세요.","Pick the images for the sheet in the gallery first."],
+"msg.sheetReady":["시트를 조판했습니다. PNG 저장을 누르세요.","Sheet laid out. Hit Save PNG."],
+"msg.noSheet":["먼저 [시트 조판]을 누르세요.","Lay the sheet out first."],
+"msg.keySaved":["키를 이 브라우저에 저장했습니다.","Key saved in this browser."],
+"msg.keyGone":["키를 삭제했습니다.","Key deleted."],
+"msg.exMd":["revision-log.md 를 내려받았습니다.","revision-log.md downloaded."],
+"msg.noimgdl":["내려받을 이미지가 없습니다.","There are no images to download."],
+"msg.wipeAsk":["갤러리의 이미지를 모두 삭제합니다. 되돌릴 수 없습니다. 계속할까요?","This deletes every image in the gallery and cannot be undone. Continue?"],
+"msg.delAsk":["를 삭제할까요?","— delete it?"],
+"msg.logAsk":["생성 기록을 모두 지웁니다. 이미지는 남습니다. 계속할까요?","This clears the log. Your images stay. Continue?"],
+"msg.netBlock":["요청이 막혔습니다. 이 HTML 파일을 브라우저에서 직접 열었는지 확인하세요.","The request was blocked. Check that you opened this HTML file directly in a browser."],
+"msg.noStore":["이 브라우저는 이미지 저장을 지원하지 않습니다. 생성 즉시 [저장]을 누르세요.","This browser cannot store images. Save each one as soon as it appears."],
+"msg.uploaded":["장을 참조로 담았습니다.","images added as references."],
+"msg.keyOk":["키 정상 · 이미지 모델","Key works · image models available:"],
+"msg.keyNoImg":["키는 정상이지만 이미지 생성 모델이 보이지 않습니다. 결제 설정이 필요할 수 있습니다.","The key works, but no image model is visible. Billing is probably not enabled."],
+"msg.need2":["공간 이미지를 [참조]로 담으세요. 캐릭터는 기준 이미지를 씁니다.","Mark a space image as [Ref]. The character comes from the anchor."],
+"msg.noSketch":["내 이미지를 먼저 올리세요.","Upload your image first."]
+};
+let lang = (function(){ try{ return localStorage.getItem("cm.lang")==="en"?"en":"ko"; }catch(e){ return "ko"; } })();
+const LI = ()=> lang==="en"?1:0;
+function t(k){ const v=T[k]; return v?v[LI()]:k; }
+function lb(it){ return lang==="en"?it[2]:it[1]; }      // [prompt, ko, en]
+function gl(g){ return lang==="en"?g[1]:g[0]; }          // group [ko,en,items]
+
+/* ============================================================
+   유틸
+   ============================================================ */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function lsGet(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+let statusTimer=null;
+function say(msg,o){ o=o||{};
+  const el=$("#status"); el.innerHTML=(o.busy?'<span class="spin"></span>':"")+esc(msg);
+  el.classList.toggle("err",!!o.err); el.classList.add("show");
+  clearTimeout(statusTimer);
+  if(!o.hold&&!o.busy) statusTimer=setTimeout(()=>el.classList.remove("show"), o.err?7000:3200);
+}
+function hideSay(){ $("#status").classList.remove("show"); }
+async function copy(text){
+  if(!text||!text.trim()){ say(t("msg.empty"),{err:true}); return; }
+  try{ await navigator.clipboard.writeText(text); say(t("msg.copied")); }
+  catch(e){ const ta=document.createElement("textarea"); ta.value=text; ta.style.cssText="position:fixed;opacity:0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); say(t("msg.copied")); }catch(e2){ say(t("msg.nocopy"),{err:true}); } ta.remove(); }
+}
+function saveBlob(blob,name){
+  const url=URL.createObjectURL(blob); const a=document.createElement("a");
+  a.href=url; a.download=name; a.style.display="none"; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ a.remove(); URL.revokeObjectURL(url); },4000);
+}
+function saveText(x,n){ saveBlob(new Blob([x],{type:"text/plain;charset=utf-8"}),n); }
+function b64ToBlob(b64,mime){ const bin=atob(b64),len=bin.length,buf=new Uint8Array(len);
+  for(let i=0;i<len;i++) buf[i]=bin.charCodeAt(i); return new Blob([buf],{type:mime||"image/png"}); }
+function stamp(){ const d=new Date(),p=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds()); }
+
+/* ============================================================
+   IndexedDB
+   ============================================================ */
+let db=null;
+function openDB(){ return new Promise(res=>{ if(!("indexedDB" in window)) return res(null);
+  let rq; try{ rq=indexedDB.open("characterMaker",1); }catch(e){ return res(null); }
+  rq.onupgradeneeded=()=>{ const d=rq.result; if(!d.objectStoreNames.contains("shots")) d.createObjectStore("shots",{keyPath:"id"}); };
+  rq.onsuccess=()=>res(rq.result); rq.onerror=()=>res(null); rq.onblocked=()=>res(null); }); }
+function dbRun(mode,fn){ return new Promise(res=>{ if(!db) return res(null);
+  try{ const tx=db.transaction("shots",mode); const r=fn(tx.objectStore("shots"));
+    tx.oncomplete=()=>res(r&&r.result!==undefined?r.result:true); tx.onerror=()=>res(null); }catch(e){ res(null); } }); }
+const dbPut=r=>dbRun("readwrite",s=>s.put(r));
+const dbDel=id=>dbRun("readwrite",s=>s.delete(id));
+const dbClear=()=>dbRun("readwrite",s=>s.clear());
+function dbAll(){ return new Promise(res=>{ if(!db) return res([]);
+  try{ const rq=db.transaction("shots","readonly").objectStore("shots").getAll();
+    rq.onsuccess=()=>res(rq.result||[]); rq.onerror=()=>res([]); }catch(e){ res([]); } }); }
+
+/* ============================================================
+   모델 · 상태
+   ============================================================ */
+const MODELS=[
+ {id:"gemini-nano-banana-2.1",      label:["Nano Banana 2.1 (권장)","Nano Banana 2.1 (recommended)"], api:"interactions", price:{"1K":.0336,"2K":.0504,"4K":.113}},
+ {id:"gemini-3.1-flash-image",      label:["Nano Banana 2 (고품질)","Nano Banana 2 (higher quality)"], api:"interactions", price:{"1K":.067,"2K":.101,"4K":.151}},
+ {id:"gemini-3.1-flash-lite-image", label:["Nano Banana 2 Lite (저렴)","Nano Banana 2 Lite (cheapest)"], api:"interactions", price:{"1K":.0336,"2K":.0336,"4K":.0336}},
+ {id:"gemini-3-pro-image",          label:["Nano Banana Pro (고가)","Nano Banana Pro (premium)"], api:"interactions", price:{"1K":.134,"2K":.134,"4K":.24}},
+ {id:"gemini-2.5-flash-image",      label:["Nano Banana (구버전)","Nano Banana (legacy)"], api:"legacy", price:{"1K":.039,"2K":.039,"4K":.039}}
+];
+const BASE="https://generativelanguage.googleapis.com/v1beta";
+const LS={key:"cm.apikey",card:"cm.card",loc:"cm.loc",log:"cm.log",cfg:"cm.cfg",rub:"cm.rubric"};
+const DEF_NEG="no text, no watermark, no logo";
+/* 기준 이미지에 맞는 기본값 — 첫 항목이 아니라 "쓸 만한 출발점"으로 */
+const DEFAULTS={styleSel:"children's book watercolor style", szSel:"full body shot, head to feet filling the frame",
+  vwSel:"front view, facing the camera straight on", agSel:"eye level", lnSel:"50mm lens", dfSel:"",
+  ltSel:"soft even lighting", bgSel:"plain light grey background"};
+const S={ shots:[], anchorId:null, comboIds:[], bgId:null, pickIds:[], sketches:[], log:lsGet(LS.log,[]), seq:lsGet(LS.cfg,{}).seq||{} };
+function saveCfg(p){ const c=lsGet(LS.cfg,{}); Object.assign(c,p||{}); c.seq=S.seq; lsSet(LS.cfg,c); }
+function cfgGet(){ return lsGet(LS.cfg,{}); }
+function nextName(kind,tag){
+  const K=kind==="L"?"L":"C", tg=(tag||"shot").replace(/[^a-zA-Z0-9_-]+/g,"_").slice(0,28), slot=K+"_"+tg;
+  S.seq[slot]=(S.seq[slot]||0)+1; saveCfg();
+  return K+"01_"+tg+"_v"+S.seq[slot]+".png";
+}
+function neg(){ const v=($("#negIn").value||"").trim(); return v||DEF_NEG; }
+
+/* ============================================================
+   선택 UI 빌더
+   ============================================================ */
+function fillSelect(id,groups,opt){ opt=opt||{};
+  const sel=$("#"+id), prev=sel.value; sel.innerHTML="";
+  groups.forEach(g=>{
+    const og=document.createElement("optgroup"); og.label=gl(g);
+    g[2].forEach(it=>{ const o=document.createElement("option"); o.value=it[0]; o.textContent=lb(it); og.appendChild(o); });
+    sel.appendChild(og);
+  });
+  if(opt.custom!==false){ const o=document.createElement("option"); o.value="__custom__"; o.textContent=t("opt.custom"); sel.appendChild(o); }
+  // 옵션을 채우면 브라우저가 첫 항목을 자동 선택하므로, 이전 값이 있었는지로 분기해야 합니다
+  if(prev) sel.value=prev;
+  else if(DEFAULTS[id]) sel.value=DEFAULTS[id];
+  if(!sel.value) sel.selectedIndex=0;
+}
+function pick(id){
+  const sel=$("#"+id); if(!sel) return "";
+  if(sel.value==="__custom__"){ const c=$("#"+id+"_c"); return c?c.value.trim():""; }
+  return sel.value;
+}
+function wireCustom(id,onChange){
+  const sel=$("#"+id), c=$("#"+id+"_c");
+  const sync=()=>{ if(c) c.classList.toggle("on",sel.value==="__custom__"); if(onChange) onChange(); };
+  sel.addEventListener("change",sync); if(c) c.addEventListener("input",()=>{ if(onChange) onChange(); });
+  sync();
+}
+/* 체크박스 목록: groups = [koGrp,enGrp,[[prompt,ko,en],…]] */
+function buildOptList(hostId,groups,key){
+  const host=$("#"+hostId); host.innerHTML="";
+  groups.forEach((g,gi)=>{
+    const h=document.createElement("div"); h.className="optgrp"; h.textContent=gl(g); host.appendChild(h);
+    g[2].forEach((it,ii)=>{
+      const id=key+"_"+gi+"_"+ii;
+      const d=document.createElement("div"); d.className="opt";
+      d.innerHTML='<input type="checkbox" id="'+id+'" data-p="'+esc(it[0])+'" data-n="'+esc(lb(it))+'">'+
+        '<label class="nm" for="'+id+'">'+esc(lb(it))+'</label>'+
+        '<button class="go" data-go="'+id+'">'+esc(t("b.gen"))+'</button>';
+      host.appendChild(d);
+    });
+  });
+  host.addEventListener("change",()=>secRender(key,true));
+  host.addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(!b) return;
+    secOnly(key,b.dataset.go); });
+  countSel(hostId,key);
+}
+function selOf(hostId){ return $$("#"+hostId+" input:checked").map(cb=>({p:cb.dataset.p,n:cb.dataset.n})); }
+function countSel(hostId,key){ const el=$("#"+key+"Cnt"); if(el) el.textContent=selOf(hostId).length; }
+function clearSel(hostId,key){ $$("#"+hostId+" input:checked").forEach(cb=>cb.checked=false); countSel(hostId,key); }
+/* 뷰는 체크박스 단일 목록 */
+function buildViewList(){
+  const host=$("#viewList"); host.innerHTML="";
+  VIEWS.forEach((v,i)=>{
+    const id="vw_"+v[0];
+    const d=document.createElement("div"); d.className="opt";
+    d.innerHTML='<input type="checkbox" id="'+id+'" data-core="'+(i<4?1:0)+'" data-p="'+esc(v[1])+'" data-n="'+esc(lang==="en"?v[3]:v[2])+'">'+
+      '<label class="nm" for="'+id+'">'+esc(lang==="en"?v[3]:v[2])+'</label>'+
+      '<button class="go" data-go="'+id+'">'+esc(t("b.gen"))+'</button>';
+    host.appendChild(d);
+  });
+  host.addEventListener("change",()=>secRender("view",true));
+  host.addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(!b) return;
+    secOnly("view",b.dataset.go); });
+  countSel("viewList","view");
+}
+
+/* ============================================================
+   프롬프트 조립
+   ============================================================ */
+const CARD_KEYS=["who","build","hair","eyes","top","bottom","shoes","prop","identity"];
+const LOCK_KEYS=["who","build","hair","eyes","top","bottom","shoes","prop"];
+const card=()=>lsGet(LS.card,{}), loc=()=>lsGet(LS.loc,{});
+const cap=s=>{ s=String(s||"").trim().replace(/[.,;]+$/,""); return s?s[0].toUpperCase()+s.slice(1):s; };
+const sentences=a=>a.filter(x=>x&&String(x).trim()).map(cap).join(". ")+".";
+const clause=a=>a.filter(x=>x&&String(x).trim()).map(s=>String(s).trim().replace(/[.,]+$/,"")).join(", ");
+
+function composeBase(){
+  const c=card(), pf=$("#propFirst").checked;
+  const head=pf&&c.prop?[c.prop]:[];
+  return clause(head.concat([
+    c.who,c.build,c.hair,c.top,c.bottom,c.shoes,c.eyes, pf?null:c.prop,
+    pick("styleSel"), pick("szSel"), pick("vwSel"), ($("#poseIn").value||"").trim(),
+    pick("agSel"), pick("lnSel"), pick("dfSel"), pick("ltSel"), pick("bgSel"), neg()
+  ]))+".";
+}
+function keepAuto(){
+  const c=card(), b=["same face","same hair"];
+  if(c.top)  b.push("the same "+String(c.top).replace(/^(a|an|the)\s+/i,""));
+  if(c.prop) b.push("the same "+String(c.prop).replace(/^(a|an|the)\s+/i,""));
+  return b.join(", ");
+}
+const keepNow=()=>($("#keepIn").value||"").trim()||keepAuto();
+const styleTail=()=>{ const s=pick("styleSel"); return s?", "+s:""; };
+const KEEP_ALL="Keep everything else identical — same costume, same props, same drawing style, same background, same lighting.";
+const negS=()=>cap(neg())+".";                                  // 문장 끝에 붙을 때는 대문자로
+const BR=(ko,en)=>"["+(lang==="en"?en:ko)+"]";                   // 학생이 채울 빈칸 — 보는 언어로만
+
+function pView(p){ return "Keep this exact character — "+keepNow()+". Do not redesign anything. Only change the camera angle: "+
+  p+", standing in the same neutral pose, same plain background, same lighting"+styleTail()+". "+KEEP_ALL+" "+negS(); }
+function pExpr(p){
+  // 표정만 바꿀 때 소품이 가장 잘 사라집니다 — 유지 항목을 명시해 둡니다
+  return "Keep this exact character — "+keepNow()+". Keep the same framing and the same pose. Only change the expression: "+p+". "+KEEP_ALL+" "+negS(); }
+function pPose(p){ return "Keep this exact character — "+keepNow()+". Only change the pose: "+p+
+  ". Same costume, same props, same drawing style, same plain background, same lighting"+styleTail()+". Full body, the whole pose inside the frame. "+negS(); }
+function shapeKeep(){
+  const c=card(), b=["same proportions and height"];
+  if(c.hair) b.push("the same hair shape");
+  if(c.top||c.bottom) b.push("the same costume shape");
+  if(c.prop) b.push("the same "+String(c.prop).replace(/^(a|an|the)\s+/i,"")+" readable in the outline");
+  return b.join(", ");
+}
+function pSil(p){ return "Keep this character's exact outer shape — "+shapeKeep()+". "+p+" "+negS(); }
+function pCos(p){
+  // "유지할 것"에 의상이 들어 있어도 모순되지 않도록, 바뀌는 것이 옷이라는 점을 명시적으로 덮어씁니다
+  return "Keep this exact character — "+keepNow()+". The ONLY thing that changes is the clothing: "+p+
+  ". Everything else still holds — same face, same hair, same proportions, same framing, same pose, same plain background, same lighting"+styleTail()+
+  ". The signature prop must still be visible. "+negS(); }
+
+const FIXTEXT={
+ generic:()=>"The "+BR("무엇이 바뀌었는지","what changed")+" changed. Restore it to match the reference image exactly. Keep everything else as it is now.",
+ only:()=>"Only change "+BR("바꿀 것 하나","the one thing to change")+". "+KEEP_ALL,
+ face:()=>"The face is not the same person any more. Go back to the reference image: same eye shape and spacing, same nose, same jaw line, same face length. "+KEEP_ALL,
+ hair:()=>"The hair changed. Restore the exact hair from the reference image — same length, same shape, same colour, same parting. "+KEEP_ALL,
+ colour:()=>{ const c=card(); return "The costume colour changed. Go back to the exact colour from the reference image"+(c.top?" ("+c.top+")":"")+". "+KEEP_ALL; },
+ prop:()=>{ const c=card(); return "The character is missing "+(c.prop||""+BR("고정 소품","the signature prop")+"")+". Add it back exactly as in the reference image, clearly visible and in the same place. "+KEEP_ALL; },
+ age:()=>"The character reads as the wrong age. Go back to the reference image: same head-to-body ratio, same facial proportions, same build. "+KEEP_ALL,
+ proportion:()=>"The proportions changed. Restore the reference image's head-to-body ratio, limb length and overall height. "+KEEP_ALL,
+ style:()=>"The drawing style drifted. Go back to the reference image's exact rendering"+(pick("styleSel")?" ("+pick("styleSel")+")":"")+" — same line weight, same colour treatment, same level of detail. "+KEEP_ALL,
+ bg:()=>"The background changed. Restore the plain background from the reference image, with nothing else in it. Keep the character exactly as it is now.",
+ lightdir:()=>"The light is coming from the wrong direction. The key light must come from "+BR("빛이 오는 방향","the direction")+", exactly as in the reference image. Keep everything else identical.",
+ flip:()=>"The image got mirrored. "+BR("기준점 문장","your fixed-reference sentence")+". This is a hard requirement — do not mirror or flip anything. Keep everything else identical.",
+ crop:()=>"The frame is cropped wrong. Show "+BR("무엇까지 보여야 하는지 — 예: 머리부터 발끝까지","what must be visible, e.g. the full body from head to feet")+" completely inside the frame, with a small margin. Keep everything else identical.",
+ scale:()=>"The character is the wrong size in the frame. Make the character "+BR("더 크게 또는 더 작게","larger or smaller")+" so that "+BR("무엇 기준으로 — 예: 머리부터 발끝까지","e.g. the head to the feet")+" fills the frame properly. Keep everything else identical.",
+ hands:()=>"Fix the hands only: natural hands, five fingers, relaxed. Keep the face, costume, props, pose, background and lighting exactly as they are.",
+ text:()=>"Remove all text, letters, numbers, watermarks, logos and signatures from the image. Keep everything else identical.",
+ extra:()=>"Remove the details that were added but not asked for: "+BR("무엇이 추가됐는지","what was added")+". The character must match the reference image exactly, with nothing extra. Keep everything else identical.",
+ messy:()=>"Clean up the line work: even line weight, closed outlines, no stray marks, no double lines. Do not change the design, the pose or the colours.",
+ free:()=>"Keep this exact character — "+BR("유지할 것","what to keep")+". Only change "+BR("바꿀 것","what to change")+". Keep everything else identical."
+};
+/* 수정 지시문 재생성 — 학생이 손대지 않았을 때만 덮어씁니다 */
+let fixLast="";
+function fixApply(force){
+  const ta=$("#editPrompt"); if(!ta) return;
+  if(!force && ta.value && ta.value!==fixLast) return;      // 직접 고친 내용은 지키기
+  const f=FIXTEXT[$("#fixSel").value]; if(!f) return;
+  fixLast="Keep this exact character — "+keepNow()+". "+f();
+  ta.value=fixLast;
+}
+const SKETCHP={
+ style:()=>"Use the drawing in this image as the design reference. Redraw it"+(styleTail()||" in a clean illustration style")+
+   ", keeping the same character design — same hair, same costume, same proportions. Full body front view, standing straight, plain light grey background, soft even lighting. "+negS(),
+ clean:()=>"Turn this rough sketch into clean line art: even line weight, closed outlines, no shading, no colour fills, white background. Keep the exact proportions, pose and design of the sketch. Do not add or remove details. "+negS(),
+ color:()=>"Colour this line art"+(styleTail()||" in flat cel-shaded colour")+". Keep every line and the exact design as drawn. Soft even lighting, plain light grey background. "+negS(),
+ turn:()=>"Use the person in this image only as a loose structural reference for pose and proportions. Redraw as an original stylized character, not a likeness of a real person"+
+   (styleTail()||", in a children's book watercolor style")+". Full body front view, standing straight, arms relaxed at the sides, plain light grey background, soft even lighting. "+negS()
+};
+function composeLoc(){
+  const l=loc();
+  return sentences([
+    l.structure?"An empty "+String(l.structure).trim().replace(/^(an?|the)\s+/i,""):"An empty interior",
+    l.era,l.wear,l.trace,l.light,l.anchorline,
+    $("#noPeople").checked?"No people":null,
+    "wide shot, eye level, 35mm lens", pick("styleSel"), neg()
+  ]);
+}
+const roomKeep=()=>"same wallpaper and walls, same furniture, same window position, same lighting";
+const anchorSentence=()=>{ const a=loc().anchorline; return a&&a.trim()?" "+cap(a)+".":""; };
+const SHOTS={
+ wide:()=>"Keep this exact room — "+roomKeep()+"."+anchorSentence()+" Only change the camera: a wide establishing shot of the whole room, eye level, 35mm lens. Same time of day. Keep everything else identical. "+negS(),
+ medium:()=>"Keep this exact room — "+roomKeep()+"."+anchorSentence()+" Only change the camera: move closer to a medium shot from the same side of the room, waist height, 50mm lens. Same time of day. Keep everything else identical. "+negS(),
+ insert:()=>"Keep this exact room — "+roomKeep()+"."+anchorSentence()+" Only change the camera: a close-up insert shot of "+BR("결정적 사물 하나","one telling object")+", 85mm lens, shallow depth of field. Same lighting and time of day. Keep everything else identical. "+negS(),
+ flip:()=>(loc().anchorline?cap(loc().anchorline)+".":"The window must be on the right side of the frame, not the left.")+" This is a hard requirement — do not mirror or flip the room. Keep everything else identical."
+};
+const COMBO={
+ place:()=>{ const c=card(), a=($("#comboAction").value||"").trim()||"standing in the middle of the room, turned slightly away from the camera, not looking at the camera";
+   return "Image 1 is the character. Image 2 is the room. Place this exact character inside this exact room. Keep the character's face, hair, "+
+   (c.top||"costume")+(c.prop?" and "+c.prop:"")+" exactly as in image 1. Keep the room's walls, furniture, window position and lighting exactly as in image 2. The character is "+a+
+   ". Medium shot, eye level, 50mm lens. The light on the character must come from the same direction as the light in the room. "+negS(); },
+ light:()=>"Match the character's lighting to the room — same light direction, same intensity, same colour temperature as the background. Keep the character design and the room exactly as they are.",
+ shadow:()=>"Add a soft contact shadow where the character touches the floor and any furniture. Keep everything else identical.",
+ grade:()=>"Apply the room's colour cast and the same softness and grain to the character as well, so both sit in one image. Keep the character design and the room exactly as they are."
+};
+
+/* ============================================================
+   카드 ↔ 화면
+   ============================================================ */
+function readCards(){
+  const c={}; $$(".cc").forEach(i=>c[i.dataset.k]=i.value); lsSet(LS.card,c);
+  const l={}; $$(".lc").forEach(i=>l[i.dataset.k]=i.value); lsSet(LS.loc,l);
+}
+function paintCards(){ const c=card(),l=loc();
+  $$(".cc").forEach(i=>{ if(c[i.dataset.k]!=null) i.value=c[i.dataset.k]; });
+  $$(".lc").forEach(i=>{ if(l[i.dataset.k]!=null) i.value=l[i.dataset.k]; }); }
+function refreshLock(){ const c=card(); let n=0;
+  LOCK_KEYS.forEach(k=>{ if(c[k]&&String(c[k]).trim()) n++; });
+  $("#lockBar").style.width=Math.round(n/LOCK_KEYS.length*100)+"%";
+  $("#lockTxt").textContent=n+" / "+LOCK_KEYS.length;
+  $$(".cc").forEach(i=>{ if(LOCK_KEYS.indexOf(i.dataset.k)>=0) i.classList.toggle("req-empty",!i.value.trim()); });
+}
+function syncAll(){ readCards(); refreshLock();
+  $("#basePrompt").value=composeBase(); $("#locPrompt").value=composeLoc();
+  $("#keepIn").placeholder=keepAuto();   // 카드를 고치면 "유지할 것" 제안도 따라 바뀜
+  if(typeof secRenderAll==="function") secRenderAll(false);   // 섹션 미리보기도 최신 카드로
+  paintChecklist(); }
+
+const EX_CARD={who:"A 10-year-old girl",build:"small for her age, slender",hair:"short bob haircut in dark brown",
+  eyes:"round dark eyes",top:"oversized mustard-yellow hoodie with frayed cuffs",bottom:"navy knee-length skirt",
+  shoes:"worn white sneakers",prop:"a red hair tie always on her left wrist",identity:"학교에서 제일 늦게 집에 가는 아이"};
+const EX_LOC={structure:"a 1980s Korean apartment kitchen, around 10 square meters, one door and one window",
+  era:"1980s, pale yellow wallpaper, worn linoleum floor, a small wooden dining table with four mismatched chairs, an old white refrigerator with magnets",
+  wear:"water stains near the ceiling, scuffed floor by the table, lived-in and slightly cluttered",
+  light:"one fluorescent ceiling light, warm 4000K, early evening sky outside",
+  trace:"a child's sticker stuck on the fridge door at knee height",
+  anchorline:"The window is always on the right side of the frame. The refrigerator is always on the left."};
+
+/* ============================================================
+   갤러리
+   ============================================================ */
+const shotById=id=>S.shots.find(s=>s.id===id);
+function paintGallery(){
+  const host=$("#shots"); host.innerHTML="";
+  $("#galEmpty").style.display=S.shots.length?"none":"block";
+  S.shots.slice().reverse().forEach(s=>{
+    const isA=s.id===S.anchorId, inC=S.comboIds.indexOf(s.id)>=0, inP=S.pickIds.indexOf(s.id)>=0;
+    const d=document.createElement("div"); d.className="shot"+(inP?" picked":"");
+    d.innerHTML='<img src="'+s.url+'" alt="'+esc(s.file)+'" data-zoom="'+s.id+'">'+
+      '<div class="meta"><div class="fn">'+esc(s.file)+'</div>'+esc(s.step)+'</div>'+
+      '<div class="acts">'+
+        '<button class="'+(isA?"on":"")+'" data-act="anchor" data-id="'+s.id+'">'+esc(t("g.anchor"))+'</button>'+
+        '<button class="'+(inC?"on":"")+'" data-act="combo" data-id="'+s.id+'">'+esc(t("g.ref"))+'</button>'+
+        '<button class="'+(inP?"on":"")+'" data-act="pick" data-id="'+s.id+'">'+esc(t("g.pick"))+'</button>'+
+      '</div><div class="acts">'+
+        '<button data-act="dl" data-id="'+s.id+'">'+esc(t("g.dl"))+'</button>'+
+        '<button data-act="del" data-id="'+s.id+'">×</button>'+
+      '</div>';
+    host.appendChild(d);
+  });
+  const a=shotById(S.anchorId);
+  $("#anchorInfo").innerHTML=esc(t("g.anchor"))+": <b>"+(a?esc(a.file):"—")+"</b>";
+  $("#refInfo").innerHTML=esc(t("g.ref"))+": <b>"+S.comboIds.length+"</b>";
+  $("#pickInfo").innerHTML=esc(t("g.pick"))+": <b>"+S.pickIds.length+"</b>";
+  $("#sheetCnt").textContent=S.pickIds.length;
+  paintAnchorBox(); paintComboBox(); paintChecklist();
+}
+function paintAnchorBox(){ const host=$("#refsAnchor"); host.innerHTML="";
+  const a=shotById(S.anchorId); if(!a) return;
+  const d=document.createElement("div"); d.className="ref anchor";
+  d.innerHTML='<img src="'+a.url+'" alt=""><div class="tag">'+esc(t("g.anchor"))+'</div>'; host.appendChild(d); }
+/* 참조 이미지는 탭2·탭3이 함께 쓰는 하나의 묶음입니다 — 세 곳에 같은 내용을 그립니다.
+   단 배경 칸에서는 어느 한 장을 "이 공간"으로 고릅니다. */
+function paintComboBox(){
+  if(S.bgId && S.comboIds.indexOf(S.bgId)<0) S.bgId=null;
+  const chosen = bgImg();
+  ["refsCombo","refsRef","refsBg"].forEach(hid=>{
+    const host=$("#"+hid); if(!host) return; host.innerHTML="";
+    const isBg = (hid==="refsBg");
+    S.comboIds.forEach((id,i)=>{ const s=shotById(id); if(!s) return;
+      const on = isBg && chosen && chosen.id===id;
+      const d=document.createElement("div"); d.className="ref"+(on?" anchor":"");
+      d.innerHTML='<img src="'+s.url+'" alt="" '+(isBg?'data-act="bgpick" data-id="'+id+'" style="cursor:pointer"':'')+'>'+
+        '<div class="tag">'+(on?esc(t("bg.thisOne")):String(i+1))+'</div>'+
+        '<button class="x" data-act="uncombo" data-id="'+id+'">×</button>';
+      host.appendChild(d); });
+  });
+  const n=S.comboIds.length;
+  ["comboState","refState"].forEach(id=>{ const e=$("#"+id); if(e) e.textContent=t("g.ref")+" "+n+" / 3"; });
+  const be=$("#bgState"); if(be) be.textContent = chosen ? t("bg.using") : t("bg.none");
+  if(typeof pickRenderAll==="function") pickRenderAll(false);
+}
+function paintSketches(){ const host=$("#refsSketch"); host.innerHTML="";
+  S.sketches.forEach((s,i)=>{ const d=document.createElement("div"); d.className="ref";
+    d.innerHTML='<img src="'+s.url+'" alt=""><div class="tag">'+esc(s.name||String(i+1))+'</div><button class="x" data-act="unsketch" data-id="'+s.id+'">×</button>';
+    host.appendChild(d); }); }
+
+async function addShot(o){
+  const id="s"+Date.now()+"_"+Math.random().toString(36).slice(2,7);
+  const rec={id,b64:o.b64,mime:o.mime||"image/png",file:nextName(o.kind,o.tag),step:o.step,prompt:o.prompt,model:o.model,at:stamp()};
+  rec.url=URL.createObjectURL(b64ToBlob(rec.b64,rec.mime));
+  S.shots.push(rec);
+  await dbPut({id:rec.id,b64:rec.b64,mime:rec.mime,file:rec.file,step:rec.step,prompt:rec.prompt,model:rec.model,at:rec.at});
+  if(!S.anchorId&&o.kind!=="L"&&!o.noAnchor) S.anchorId=rec.id;
+  addLog(Object.assign({},rec,{free:!!o.free})); paintGallery(); return rec;
+}
+
+/* ============================================================
+   기록
+   ============================================================ */
+function addLog(r){ S.log.push({n:S.log.length+1,at:r.at,step:r.step,file:r.file,model:r.model,prompt:r.prompt,copied:!!r.copied,free:!!r.free});
+  lsSet(LS.log,S.log); paintLog(); paintMeter(); }
+function paintLog(){ const b=$("#logBody"); b.innerHTML="";
+  $("#logEmpty").style.display=S.log.length?"none":"block";
+  S.log.slice().reverse().forEach(r=>{ const tr=document.createElement("tr");
+    tr.innerHTML="<td>"+r.n+"</td><td>"+esc(r.at)+"</td><td>"+esc(r.step)+"</td>"+
+      "<td style='font-family:var(--mono);font-size:10.5px'>"+esc(r.file)+"</td><td>"+esc(r.model)+"</td><td class='p'>"+esc(r.prompt)+"</td>";
+    b.appendChild(tr); }); }
+function priceOf(m,sz){ const x=MODELS.find(y=>y.id===m); return x?(x.price[sz]||x.price["1K"]):0.04; }
+function paintMeter(){
+  const gen=S.log.filter(r=>!r.copied&&!r.free);   // 복사·업로드는 비용에 넣지 않습니다
+  $("#mCount").textContent=gen.length;
+  const sz=cfgGet().size||"1K"; let tot=0; gen.forEach(r=>tot+=priceOf(r.model,sz));
+  $("#mCost").textContent="$"+tot.toFixed(2); }
+
+const RUBRIC=["r.0","r.1","r.2","r.3","r.4"];
+function buildRubric(){ const host=$("#rubric"), saved=lsGet(LS.rub,{}); host.innerHTML="";
+  RUBRIC.forEach((k,i)=>{ const row=document.createElement("div");
+    row.className="row"; row.style.cssText="border-bottom:1px solid var(--line);padding:7px 0";
+    row.innerHTML="<span style='flex:1;font-size:13px'>"+esc(t(k))+"</span>";
+    const chips=document.createElement("div"); chips.className="chips";
+    for(let n=1;n<=5;n++){ const b=document.createElement("button"); b.className="chip"; b.textContent=n; b.style.padding="3px 9px";
+      b.setAttribute("aria-pressed",String(saved["r"+i]===n));
+      b.onclick=()=>{ const s=lsGet(LS.rub,{}); s["r"+i]=n; lsSet(LS.rub,s); buildRubric(); paintChecklist(); };
+      chips.appendChild(b); }
+    row.appendChild(chips); host.appendChild(row); });
+  if(saved.note!=null&&!$("#rubricNote").value) $("#rubricNote").value=saved.note; }
+
+const CHECKS=[
+ ()=>LOCK_KEYS.every(k=>card()[k]&&String(card()[k]).trim()),
+ ()=>!!S.anchorId,
+ ()=>["front","threeq","side","back"].every(v=>S.log.some(r=>/L2 (턴어라운드|turnaround)/i.test(r.step)&&r.file.indexOf(v)>=0)),
+ ()=>S.shots.filter(s=>/표정|expression/i.test(s.step)).length>=4,
+ ()=>S.shots.some(s=>/실루엣|silhouette/i.test(s.step)),
+ ()=>!!cfgGet().sheetDone,
+ ()=>["structure","era","light","anchorline"].every(k=>loc()[k]&&String(loc()[k]).trim()),
+ ()=>{ const s=lsGet(LS.rub,{}); return RUBRIC.every((_,i)=>s["r"+i]); },
+ ()=>!!($("#whyPick").value||"").trim()
+];
+function paintChecklist(){ const host=$("#checklist"); if(!host) return; host.innerHTML="";
+  CHECKS.forEach((f,i)=>{ let ok=false; try{ ok=f(); }catch(e){}
+    const d=document.createElement("div");
+    d.style.cssText="padding:5px 0;font-size:13px;color:"+(ok?"var(--ink)":"var(--ink-3)");
+    d.innerHTML=(ok?'<span style="color:var(--teal-d);font-weight:700">✓</span> ':'<span style="color:var(--ink-3)">○</span> ')+esc(t("ck."+i));
+    host.appendChild(d); }); }
+
+function exportMd(){
+  const c=card(),l=loc(),rub=lsGet(LS.rub,{});
+  const KL=["c.who","c.build","c.hair","c.eyes","c.top","c.bottom","c.shoes","c.prop","c.identity"];
+  let o=(lang==="en"?"# Revision log":"# 수정 이력")+"\n\n"+stamp()+"\n\n## "+(lang==="en"?"Character card":"캐릭터 설정 카드")+"\n\n| | |\n|---|---|\n";
+  CARD_KEYS.forEach((k,i)=>{ o+="| "+t(KL[i])+" | "+(c[k]||"—")+" |\n"; });
+  o+="| "+t("c.styleSec")+" | "+(pick("styleSel")||"—")+" |\n";
+  o+="\n## "+(lang==="en"?"Base prompt":"기준 프롬프트")+"\n\n```\n"+($("#basePrompt").value||"")+"\n```\n";
+  o+="\n## "+t("l.card")+"\n\n| | |\n|---|---|\n";
+  ["structure","wear","era","light","trace","anchorline"].forEach(k=>{ o+="| "+k+" | "+(l[k]||"—")+" |\n"; });
+  o+="\n## "+t("e.rubric")+"\n\n| | |\n|---|---|\n";
+  RUBRIC.forEach((k,i)=>{ o+="| "+t(k)+" | "+(rub["r"+i]||"—")+" |\n"; });
+  o+="\n"+t("e.rubricNote")+": "+($("#rubricNote").value||"—")+"\n";
+  o+="\n"+t("s.why")+": "+($("#whyPick").value||"—")+"\n";
+  o+="\n## "+t("s.log")+" ("+S.log.length+")\n\n| # | "+t("s.time")+" | "+t("s.step")+" | "+t("s.file")+" | "+t("s.modelc")+" | "+t("s.prompt")+" |\n|---|---|---|---|---|---|\n";
+  S.log.forEach(r=>{ o+="| "+r.n+" | "+r.at+" | "+r.step+" | "+r.file+" | "+r.model+" | "+String(r.prompt).replace(/\|/g,"\\|").replace(/\n/g," ")+" |\n"; });
+  saveText(o,"revision-log.md"); say(t("msg.exMd"));
+}
+function exportCsv(){ const rows=[["n","at","step","file","model","prompt"]];
+  S.log.forEach(r=>rows.push([r.n,r.at,r.step,r.file,r.model,r.prompt]));
+  const csv="﻿"+rows.map(r=>r.map(v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+  saveBlob(new Blob([csv],{type:"text/csv;charset=utf-8"}),"revision-log.csv"); }
+
+/* ============================================================
+   모델 시트 조판
+   ============================================================ */
+let sheetReady=false;
+function buildSheet(){
+  const ids=S.pickIds.slice(); if(!ids.length){ say(t("msg.pickSheet"),{err:true}); return; }
+  const cols=parseInt($("#sheetCols").value,10), cell=parseInt($("#sheetCell").value,10);
+  const labels=$("#sheetLabels").checked, dark=$("#sheetDark").checked;
+  const pad=Math.round(cell*.045), capH=labels?Math.round(cell*.075):0, titleH=Math.round(cell*.17);
+  const rows=Math.ceil(ids.length/cols);
+  const W=cols*cell+pad*(cols+1), H=titleH+rows*(cell+capH)+pad*(rows+1);
+  const cv=$("#sheetCanvas"); cv.width=W; cv.height=H;
+  const x=cv.getContext("2d");
+  x.fillStyle=dark?"#15191c":"#ffffff"; x.fillRect(0,0,W,H);
+  const fg=dark?"#e8edee":"#16191c", fg2=dark?"#8d979c":"#7b858c";
+  x.fillStyle=fg; x.font="600 "+Math.round(cell*.075)+"px system-ui,sans-serif"; x.textBaseline="middle";
+  x.fillText(($("#sheetTitle").value||"").trim()||t("s.sheet"), pad, titleH*.52);
+  x.fillStyle=fg2; x.font=Math.round(cell*.042)+"px system-ui,sans-serif";
+  x.fillText(stamp(), pad, titleH*.84);
+  let done=0;
+  ids.forEach((id,i)=>{
+    const s=shotById(id); if(!s){ done++; return; }
+    const cx=pad+(i%cols)*(cell+pad), cy=titleH+pad+Math.floor(i/cols)*(cell+capH+pad);
+    const im=new Image();
+    im.onload=()=>{
+      x.fillStyle=dark?"#1e2429":"#f3f6f6"; x.fillRect(cx,cy,cell,cell);
+      const r=Math.min(cell/im.width,cell/im.height), w=im.width*r, h=im.height*r;
+      x.drawImage(im,cx+(cell-w)/2,cy+(cell-h)/2,w,h);
+      x.strokeStyle=dark?"#313a40":"#dde3e3"; x.lineWidth=1; x.strokeRect(cx+.5,cy+.5,cell-1,cell-1);
+      if(labels){ x.fillStyle=fg2; x.font=Math.round(cell*.04)+"px ui-monospace,monospace";
+        x.fillText(s.file,cx+2,cy+cell+capH*.55); }
+      if(++done===ids.length){ sheetReady=true; saveCfg({sheetDone:true}); say(t("msg.sheetReady")); paintChecklist(); }
+    };
+    im.onerror=()=>{ if(++done===ids.length){ sheetReady=true; say(t("msg.sheetReady")); } };
+    im.src=s.url;
+  });
+}
+function saveSheet(){
+  if(!sheetReady){ say(t("msg.noSheet"),{err:true}); return; }
+  $("#sheetCanvas").toBlob(b=>{ if(b) saveBlob(b,"C01_model_sheet.png"); },"image/png");
+}
+function openCompare(){
+  if(S.pickIds.length<2){ say(t("msg.pick2"),{err:true}); return; }
+  const ids=S.pickIds.slice(0,4), pane=$("#cmpPane");
+  pane.style.gridTemplateColumns="repeat("+(ids.length<=2?2:ids.length===3?3:2)+",1fr)";
+  pane.innerHTML=ids.map(id=>{ const s=shotById(id); return s?
+    '<figure><img src="'+s.url+'" alt=""><figcaption>'+esc(s.file)+" · "+esc(s.step)+'</figcaption></figure>':""; }).join("");
+  $("#cmpTitle").textContent=t("s.cmp")+" — "+ids.length;
+  $("#cmp").classList.add("show");
+}
+
+/* ============================================================
+   API
+   ============================================================ */
+const apiKey=()=>($("#apiKey").value||"").trim();
+const cfgNow=()=>({model:$("#model").value,aspect:$("#aspect").value,size:$("#size").value,mode:$("#apiMode").value});
+function buildInteractions(m,p,imgs,c,bare){
+  const input=[{type:"text",text:p}]; imgs.forEach(i=>input.push({type:"image",mime_type:i.mime||"image/png",data:i.b64}));
+  const b={model:m,input}; if(!bare) b.response_format={type:"image",aspect_ratio:c.aspect,image_size:c.size}; return b; }
+function buildLegacy(p,imgs,c,bare){
+  const parts=[{text:p}]; imgs.forEach(i=>parts.push({inline_data:{mime_type:i.mime||"image/png",data:i.b64}}));
+  const b={contents:[{role:"user",parts}]}; if(!bare) b.generationConfig={imageConfig:{aspectRatio:c.aspect}}; return b; }
+function harvestImages(n,out){ out=out||[];
+  if(!n||typeof n!=="object") return out;
+  if(Array.isArray(n)){ n.forEach(x=>harvestImages(x,out)); return out; }
+  const mime=n.mime_type||n.mimeType, data=typeof n.data==="string"?n.data:null;
+  if(data&&data.length>512&&/^[A-Za-z0-9+/\-_=\s]+$/.test(data.slice(0,80))&&(!mime||/^image\//.test(mime)))
+    out.push({b64:data.replace(/\s+/g,""),mime:mime||"image/png"});
+  Object.keys(n).forEach(k=>{ if(k!=="data") harvestImages(n[k],out); }); return out; }
+function harvestText(n,out){ out=out||[];
+  if(!n||typeof n!=="object") return out;
+  if(Array.isArray(n)){ n.forEach(x=>harvestText(x,out)); return out; }
+  if(typeof n.text==="string"&&n.text.trim()) out.push(n.text.trim());
+  Object.keys(n).forEach(k=>{ if(k!=="text") harvestText(n[k],out); }); return out; }
+function friendlyError(st,json,raw){
+  const m=String((json&&json.error&&(json.error.message||json.error.status))||raw||"");
+  const ko=lang!=="en";
+  if(st===400&&/API[_ ]?key|API key not valid/i.test(m)) return ko?"API 키가 올바르지 않습니다.":"That API key is not valid.";
+  if(st===400&&/billing|billed users|paid/i.test(m)) return ko?"결제가 설정되지 않았습니다. 이미지 생성은 유료 등급에서만 됩니다.":"Billing is not enabled. Image generation requires a paid tier.";
+  if(st===403) return ko?"권한이 없습니다. 키의 프로젝트에 결제가 켜져 있는지 확인하세요.":"Permission denied. Check that billing is enabled on the key's project.";
+  if(st===404) return (ko?"이 모델은 지금 키로 쓸 수 없습니다. 설정 탭에서 다른 모델을 고르세요. ":"That model is not available to this key. Pick another in Setup. ")+m.slice(0,110);
+  if(st===429) return ko?"요청 한도를 넘었습니다. 1~2분 기다린 뒤 다시 시도하세요.":"Rate limit reached. Wait a minute or two and try again.";
+  if(st>=500) return ko?"구글 서버 오류입니다. 잠시 뒤 다시 시도하세요.":"Google server error. Try again shortly.";
+  if(/SAFETY|blocked|PROHIBITED/i.test(m)) return ko?"안전 필터에 걸렸습니다. 표현을 바꿔 보세요.":"Blocked by the safety filter. Reword the prompt.";
+  return "("+st+") "+m.slice(0,180);
+}
+async function callOnce(mode,p,imgs,c,bare){
+  const url=mode==="legacy"?BASE+"/models/"+encodeURIComponent(c.model)+":generateContent":BASE+"/interactions";
+  const body=mode==="legacy"?buildLegacy(p,imgs,c,bare):buildInteractions(c.model,p,imgs,c,bare);
+  let res;
+  try{ res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":apiKey()},body:JSON.stringify(body)}); }
+  catch(e){ throw new Error("NETWORK|"+t("msg.netBlock")); }
+  const raw=await res.text(); let json=null; try{ json=JSON.parse(raw); }catch(e){}
+  if(!res.ok) throw new Error("HTTP"+res.status+"|"+friendlyError(res.status,json,raw));
+  const got=harvestImages(json);
+  if(!got.length){ const tx=harvestText(json).join(" ").slice(0,200);
+    throw new Error("NOIMG|"+(lang==="en"?"No image came back.":"이미지가 오지 않았습니다.")+(tx?" "+tx:"")); }
+  return got;
+}
+let worked=null, nokeyShown=false;
+async function generate(o){
+  // 키가 없다고 매번 설정 탭으로 튕기면 작업하던 자리를 잃습니다 — 처음 한 번만 안내
+  if(!apiKey()){ say(t("msg.nokey"),{err:true}); if(!nokeyShown){ nokeyShown=true; showTab(0); } return 0; }
+  const p=o.prompt;
+  if(!p||!p.trim()){ say(t("msg.empty"),{err:true}); return 0; }
+  const c=cfgNow(), n=o.count||parseInt($("#nGen").value,10)||1;
+  const m=MODELS.find(x=>x.id===c.model), primary=(m&&m.api)||"interactions", other=primary==="legacy"?"interactions":"legacy";
+  const plan=c.mode==="auto"?[[primary,false],[primary,true],[other,false],[other,true]]:[[c.mode,false],[c.mode,true]];
+  let made=0,lastErr=null;
+  for(let i=0;i<n;i++){
+    say((o.label?o.label+" · ":"")+(i+1)+"/"+n+" · "+c.model,{busy:true,hold:true});
+    let got=null;
+    for(const mb of (worked?[worked]:plan)){
+      try{ got=await callOnce(mb[0],p,o.imgs||[],c,mb[1]); worked=mb; break; }
+      catch(e){ lastErr=e; const code=String(e.message).split("|")[0];
+        if((code==="HTTP404"||code==="HTTP400"||code==="NOIMG")&&!/키가 올바르지|not valid|결제|Billing/.test(e.message)) continue;
+        break; }
+    }
+    if(!got) break;
+    for(const g of got){ await addShot({b64:g.b64,mime:g.mime,step:o.step,prompt:p,model:c.model,tag:o.tag,kind:o.kind}); made++; }
+  }
+  hideSay();
+  if(made) say(made+" "+t("msg.done"));
+  else if(lastErr) say(String(lastErr.message).split("|").slice(1).join("|")||String(lastErr.message),{err:true});
+  return made;
+}
+/* ============================================================
+   참조 이미지 — 갤러리 [참조] + 업로드를 함께 쓰는 하나의 묶음
+   탭2: 기준이 1번, 참조가 2번부터 / 탭3: 올린 배경이 1번
+   ============================================================ */
+const refList=()=>S.comboIds.map(id=>shotById(id)).filter(Boolean);
+/* 배경 작업과 합성은 "공간 한 장"에만 걸립니다 — 캐릭터 참조가 딸려 가면 안 됩니다 */
+function bgImg(){ return shotById(S.bgId) || refList()[0] || null; }
+function refPrefixA(){
+  const n=refList().length;
+  return n<=1 ? "Image 1 is my character. Image 2 is the reference. "
+              : "Image 1 is my character. Images 2 to "+(n+1)+" are the references. ";
+}
+function refPrefixB(){ return "This image is my location reference. "; }
+const REFBODY={
+ costume:()=>"Dress my character in the costume from the reference image — same garments, same colours, same details, same condition. Keep my character's face, hair, body proportions and drawing style exactly as in image 1. This is still the same person, only wearing different clothes. "+negS(),
+ pose:()=>"Put my character into the pose from the reference image. Take ONLY the pose and the body angle from the reference — nothing else. Keep my character's face, hair, costume, props and drawing style exactly as in image 1. Full body, the whole pose inside the frame. "+negS(),
+ expr:()=>"Give my character the facial expression from the reference image. Take ONLY the expression. Keep my character's face structure, hair, costume, props, framing and drawing style exactly as in image 1. "+negS(),
+ hair:()=>"Give my character the hairstyle from the reference image — same length, same shape, same parting. Keep the hair colour and everything else from image 1: same face, same costume, same props, same drawing style. "+negS(),
+ prop:()=>"Add the object from the reference image to my character, held or worn naturally and at the right scale. Keep my character exactly as in image 1 — same face, same hair, same costume, same existing props, same drawing style. "+negS(),
+ technique:()=>"Redraw image 1 with the rendering of the reference image — same line weight, same colour treatment, same shading, same level of detail. Keep the character design, pose, costume and framing of image 1 completely unchanged. Take only the technique, never the subject. "+negS(),
+ palette:()=>"Recolour image 1 using only the colour palette of the reference image. Keep the character design, pose, framing, line work and level of detail of image 1 unchanged. "+negS(),
+ light:()=>"Relight my character to match the lighting in the reference image — same direction, same intensity, same colour temperature, same shadow softness. Keep the character design, pose, costume and framing of image 1 unchanged. "+negS(),
+ grain:()=>"Match the surface texture of image 1 to the reference image — same grain, same paper or film texture, same edge softness. Keep the character design, colours, pose and framing of image 1 unchanged. "+negS(),
+ lineup:()=>"Show both characters standing side by side in one image, full body, facing the camera, on a plain light grey background with a soft contact shadow under each. Keep each character exactly as drawn in their own image — same face, same hair, same costume, same props, same proportions. Their relative heights must be accurate and both must be drawn in the same style. "+negS(),
+ twoshot:()=>"Put both characters into one scene together: "+BR("둘이 무엇을 하고 있는지","what the two of them are doing")+". Keep each character exactly as drawn in their own image — same face, same hair, same costume, same props. Both drawn in the same style, lit by the same light, standing on the same ground. "+negS(),
+ free:()=>"The reference image is "+BR("참조가 무엇인지","what the reference is")+". Take only "+BR("가져올 것","what to take from it")+" from the reference. Keep everything else in image 1 exactly as it is."
+};
+const BGBODY={
+ stylize:()=>"Redraw this photograph as a background illustration"+(styleTail()||", in a clean illustration style")+". Keep the exact layout — same walls, same furniture and their positions, same window positions, same camera angle, same perspective. Change only the rendering. No people. "+negS(),
+ plate:()=>"Use this image as my location reference. Redraw it as a clean background plate"+styleTail()+", with no people and nothing blocking the foreground, ready for a character to be placed into it later. Keep the layout, the window positions and the camera angle exactly. "+negS(),
+ linework:()=>"Reduce this image to background line art: even line weight, closed outlines, no shading, no colour fills, white background. Keep the exact layout, perspective and camera angle. No people. "+negS(),
+ time:()=>"Keep this exact space — same layout, same furniture, same camera angle, same perspective. Only change the time of day to "+BR("아침 / 한낮 / 해질녘 / 밤","morning / midday / golden hour / night")+". The light must still come from the same windows. No people. Keep everything else identical.",
+ season:()=>"Keep this exact space — same layout, same furniture, same camera angle. Only change the season and the weather to "+BR("계절과 날씨","the season and weather")+". No people. Keep everything else identical.",
+ era:()=>"Keep the layout and the camera angle of this space exactly — same walls, same window positions, same furniture placement, same perspective. Change the period and the materials to "+BR("시대 — 예: 1980s","the period, e.g. 1980s")+". No people. "+negS(),
+ lived:()=>"Keep this exact space — same layout, same furniture, same camera angle, same lighting. Add signs that someone lives here: "+BR("무엇을 더할지","what to add")+". Do not move any furniture and do not change the architecture. No people.",
+ empty:()=>"Keep this exact space — same walls, same furniture, same camera angle, same lighting. Remove every person from the image and fill in what was behind them so the result looks natural. Keep everything else identical.",
+ declutter:()=>"Keep this exact space and camera angle. Remove "+BR("지울 것","what to remove")+" and fill in the space behind it so the result looks natural. Keep everything else identical.",
+ clean:()=>"Keep this exact space and camera angle. Remove all text, signage, logos and brand marks, replacing them with plain surfaces. Keep everything else identical. "+negS(),
+ angle:()=>"Keep this exact space — same walls, same furniture and their positions, same window positions, same lighting, same time of day. Only change the camera: "+BR("새 앵글 — 예: 문 쪽에서 본 와이드","the new angle, e.g. a wide shot from the doorway")+"."+anchorSentence()+" Keep everything else identical. "+negS(),
+ free:()=>"Keep this exact space — same layout, same furniture, same camera angle. Only change "+BR("바꿀 것","what to change")+". Keep everything else identical."
+};
+const PICKSECS={
+ ref:{sel:"refSel", ta:"refPrompt", body:REFBODY, pre:refPrefixA, step:()=>t("st.ref"), kind:"C", anchor:true},
+ bg: {sel:"bgSel2", ta:"bgPrompt",  body:BGBODY,  pre:refPrefixB, step:()=>t("st.bg"),  kind:"L", anchor:false}
+};
+function pickRender(k,force){
+  const s=PICKSECS[k], ta=$("#"+s.ta), sel=$("#"+s.sel); if(!ta||!sel) return;
+  const f=s.body[sel.value]; if(!f) return;
+  const txt=s.pre()+f();
+  if(force||!ta.value||ta.value===s.rendered){ ta.value=txt; s.rendered=txt; }
+}
+function pickRenderAll(force){ Object.keys(PICKSECS).forEach(k=>pickRender(k,force)); }
+function pickImgs(k){
+  const s=PICKSECS[k];
+  if(!s.anchor){ const g=bgImg(); return g?[{b64:g.b64,mime:g.mime}]:[]; }
+  const a=shotById(S.anchorId); if(!a) return null;
+  return [{b64:a.b64,mime:a.mime}].concat(refList().map(x=>({b64:x.b64,mime:x.mime})));
+}
+function pickGen(k){
+  const s=PICKSECS[k];
+  if(!s.anchor && !bgImg()){ say(t("msg.noref"),{err:true}); return; }
+  if(s.anchor && !refList().length){ say(t("msg.noref"),{err:true}); return; }
+  const imgs=pickImgs(k);
+  if(s.anchor&&!imgs){ say(t("msg.noanchor"),{err:true}); return; }
+  const p=$("#"+s.ta).value;
+  if(!p.trim()){ say(t("msg.empty"),{err:true}); return; }
+  if(/\[[^\]]*\]/.test(p)){ say(t("msg.brackets"),{err:true}); return; }
+  generate({prompt:p,imgs,step:s.step(),tag:k+"_"+$("#"+s.sel).value,kind:s.kind});
+}
+function pickCopy(k){
+  const s=PICKSECS[k], p=$("#"+s.ta).value;
+  if(!p.trim()){ say(t("msg.empty"),{err:true}); return; }
+  copy(p);
+  addLog({at:stamp(),step:s.step()+" · "+t("b.copied"),file:"—",model:"—",prompt:p,copied:true});
+}
+/* 업로드 → 갤러리에 보관하고 참조 묶음에 담기 (기준은 가로채지 않음) */
+async function uploadAsRef(files,kind,step){
+  for(const f of files){
+    if(S.comboIds.length>=3){ say(t("msg.ref3"),{err:true}); break; }
+    try{
+      const r=await readImageFile(f);
+      const rec=await addShot({b64:r.b64,mime:r.mime,step,prompt:"(upload: "+r.name+")",model:"—",
+        tag:"upload",kind,noAnchor:true,free:true});
+      S.comboIds.push(rec.id);
+    }catch(e){ say(e.message,{err:true}); }
+  }
+  paintGallery();
+}
+
+/* ============================================================
+   Consistency 섹션 — 선택 → 미리보기 → 전송
+   선택한 모든 항목이 눈에 보이는 하나의 프롬프트 묶음으로 남고,
+   거기 고친 내용이 그대로 전송됩니다. 키가 없어도 복사는 됩니다.
+   ============================================================ */
+const slug=s=>String(s||"x").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,20);
+const SECS={
+ view:{host:"viewList",free:"viewFree",ta:"viewPrompt",make:p=>pView(p),step:()=>t("st.view"),
+       tag:it=>{ const v=VIEWS.find(v=>v[1]===it.p); return v?v[0]:slug(it.n); }},
+ expr:{host:"exprList",free:"exprFree",ta:"exprPrompt",make:p=>pExpr(p),step:()=>t("st.expr"),tag:it=>"exp_"+slug(it.n)},
+ pose:{host:"poseList",free:"poseFree",ta:"posePrompt",make:p=>pPose(p),step:()=>t("st.pose"),tag:it=>"pose_"+slug(it.n)},
+ sil: {host:"silList", free:null,      ta:"silPrompt", make:p=>pSil(p), step:()=>t("st.sil"), tag:it=>"sil_"+slug(it.n)},
+ cos: {host:"cosList", free:"cosFree", ta:"cosPrompt", make:p=>pCos(p), step:()=>t("st.cos"), tag:it=>"cos_"+slug(it.n)}
+};
+const HDR_RE=/^###[^\n]*$/mg, HDR_ONE=/^###[^\n]*$/m;
+const hdr=(i,label)=>"### "+i+" · "+label;
+
+function secItems(k){
+  const s=SECS[k]; let list=selOf(s.host);
+  if(s.free){ const x=($("#"+s.free).value||"").trim(); if(x) list=list.concat([{p:x,n:x}]); }
+  return list;
+}
+/* force=true 면 덮어쓰기(선택이 바뀐 경우), false 면 학생이 고친 내용을 지킴(언어 전환 등) */
+function secRender(k,force){
+  const s=SECS[k], ta=$("#"+s.ta); if(!ta) return;
+  const items=secItems(k);
+  const q=items.map(it=>({tag:s.tag(it),label:it.n,prompt:s.make(it.p)}));
+  const txt=q.map((x,i)=>hdr(i+1,x.label)+"\n"+x.prompt).join("\n\n");
+  if(force || !ta.value || ta.value===s.rendered){ ta.value=txt; s.queue=q; s.rendered=txt; }
+  countSel(s.host,k);
+}
+/* 미리보기를 다시 블록으로 읽음 — 보이는 그대로가 전송됩니다 */
+function secParse(k){
+  const s=SECS[k], raw=($("#"+s.ta).value||"").trim();
+  if(!raw) return [];
+  const parts=raw.split(HDR_ONE).map(x=>x.trim()).filter(Boolean);
+  const labels=(raw.match(HDR_RE)||[]).map(h=>h.replace(/^###\s*\d+\s*·?\s*/,"").trim());
+  const keepTags=s.queue&&s.queue.length===parts.length;
+  return parts.map((txt,i)=>({prompt:txt,
+    tag:keepTags?s.queue[i].tag:slug(labels[i]||("item"+(i+1))),
+    label:labels[i]||String(i+1)}));
+}
+async function runSec(k){
+  const s=SECS[k], a=shotById(S.anchorId);
+  if(!a){ say(t("msg.noanchor"),{err:true}); return; }
+  const q=secParse(k);
+  if(!q.length){ say(t("msg.nosel"),{err:true}); return; }
+  if(q.some(x=>/\[[^\]]*\]/.test(x.prompt))){ say(t("msg.brackets"),{err:true}); return; }
+  let total=0;
+  for(let i=0;i<q.length;i++){
+    const n=await generate({prompt:q[i].prompt,imgs:[{b64:a.b64,mime:a.mime}],step:s.step(),
+      tag:q[i].tag,kind:"C",count:1,label:(i+1)+"/"+q.length+" "+q[i].label});
+    total+=n; if(!n) break;
+  }
+  if(total) say(total+" "+t("msg.done"));
+}
+/* 행의 [생성] — 그 항목만 남기고 미리보기에 띄운 뒤 전송 */
+function secOnly(k,cbId){
+  const s=SECS[k];
+  $$("#"+s.host+" input").forEach(cb=>cb.checked=(cb.id===cbId));
+  if(s.free) $("#"+s.free).value="";
+  secRender(k,true); runSec(k);
+}
+/* 복사 — 키가 없는 무료 경로의 유일한 출구이므로, 복사한 것도 기록에 남깁니다 */
+function secCopy(k){
+  const s=SECS[k], q=secParse(k);
+  if(!q.length){ say(t("msg.nosel"),{err:true}); return; }
+  copy($("#"+s.ta).value);
+  q.forEach(x=>addLog({at:stamp(),step:s.step()+" · "+t("b.copied"),file:"—",model:"—",prompt:x.prompt,copied:true}));
+}
+function secClear(k){ clearSel(SECS[k].host,k); if(SECS[k].free) $("#"+SECS[k].free).value=""; secRender(k,true); }
+function secRenderAll(force){ Object.keys(SECS).forEach(k=>secRender(k,force)); }
+
+async function testKey(){
+  if(!apiKey()){ say(t("msg.nokey"),{err:true}); return; }
+  say(t("set.test"),{busy:true,hold:true});
+  try{
+    const res=await fetch(BASE+"/models?pageSize=200",{headers:{"x-goog-api-key":apiKey()}});
+    const raw=await res.text(); let json=null; try{ json=JSON.parse(raw); }catch(e){}
+    if(!res.ok){ hideSay(); say(friendlyError(res.status,json,raw),{err:true}); return; }
+    const names=(json.models||[]).map(m=>String(m.name||"").replace(/^models\//,""));
+    const imgs=names.filter(n=>/image|banana/i.test(n));
+    hideSay();
+    if(imgs.length){
+      say(t("msg.keyOk")+" "+imgs.slice(0,4).join(", "));
+      const sel=$("#model"), have=new Set($$("option",sel).map(o=>o.value));
+      imgs.forEach(n=>{ if(!have.has(n)){ const o=document.createElement("option"); o.value=n; o.textContent=n; sel.appendChild(o); } });
+    } else say(t("msg.keyNoImg"),{err:true});
+  }catch(e){ hideSay(); say(t("msg.netBlock"),{err:true}); }
+}
+
+/* ============================================================
+   이미지 입력
+   ============================================================ */
+function readImageFile(f){ return new Promise((res,rej)=>{
+  if(!/^image\//.test(f.type)) return rej(new Error("not an image: "+f.name));
+  if(f.size>12*1024*1024) return rej(new Error(">12MB: "+f.name));
+  const fr=new FileReader();
+  fr.onload=()=>{ const s=String(fr.result); res({b64:s.slice(s.indexOf(",")+1),mime:f.type,url:s,name:f.name}); };
+  fr.onerror=()=>rej(new Error("read failed")); fr.readAsDataURL(f); }); }
+function wireDrop(ds,is,h){ const d=$(ds),i=$(is);
+  d.addEventListener("click",e=>{ if(e.target!==i) i.click(); });
+  ["dragenter","dragover"].forEach(ev=>d.addEventListener(ev,e=>{ e.preventDefault(); d.classList.add("on"); }));
+  ["dragleave","drop"].forEach(ev=>d.addEventListener(ev,e=>{ e.preventDefault(); d.classList.remove("on"); }));
+  d.addEventListener("drop",e=>h(Array.from(e.dataTransfer.files||[])));
+  i.addEventListener("change",()=>{ h(Array.from(i.files||[])); i.value=""; }); }
+
+/* ============================================================
+   탭 · 언어
+   ============================================================ */
+const TABS=["p0","p1","p2","p3","p4"];
+function showTab(i){ $$("#tabs button").forEach((b,j)=>b.setAttribute("aria-selected",String(i===j)));
+  TABS.forEach((p,j)=>$("#"+p).classList.toggle("on",i===j));
+  saveCfg({tab:i}); window.scrollTo({top:0,behavior:"smooth"}); }
+function buildTabs(){ const nav=$("#tabs"); nav.innerHTML="";
+  TABS.forEach((p,i)=>{ const b=document.createElement("button"); b.setAttribute("role","tab");
+    b.innerHTML='<span class="n">'+i+'</span>'+esc(t("nav."+i)); b.onclick=()=>showTab(i); nav.appendChild(b); });
+  const cur=cfgGet().tab||0; $$("#tabs button").forEach((b,j)=>b.setAttribute("aria-selected",String(cur===j))); }
+
+const HOWTO=[
+ `<table><tr><td>1</td><td><code>aistudio.google.com/apikey</code> 접속 → 구글 계정 로그인</td></tr>
+  <tr><td>2</td><td><b>Create API key</b> → 새 프로젝트 → 키 복사</td></tr>
+  <tr><td>3</td><td>같은 화면에서 <b>Set up Billing</b> → 카드 등록</td></tr>
+  <tr><td>4</td><td>위 칸에 붙여넣고 <b>키 저장</b> → <b>연결 테스트</b></td></tr></table>
+  <p style="margin-top:8px">학교에서 공용 키를 받았다면 3단계는 건너뜁니다. <b>공용 키는 과제 제출물이나 공유 문서에 절대 적지 마세요.</b></p>`,
+ `<table><tr><td>1</td><td>Go to <code>aistudio.google.com/apikey</code> and sign in</td></tr>
+  <tr><td>2</td><td><b>Create API key</b> → new project → copy the key</td></tr>
+  <tr><td>3</td><td>On the same screen, <b>Set up Billing</b></td></tr>
+  <tr><td>4</td><td>Paste it above, <b>Save key</b>, then <b>Test connection</b></td></tr></table>
+  <p style="margin-top:8px">If your tutor gave you a shared key, skip step 3. <b>Never put a shared key in anything you submit or share.</b></p>`
+];
+const PATTERNS=[
+ `<table>
+  <tr><td>캐릭터 고정</td><td><code>Keep this exact character, do not redesign</code></td></tr>
+  <tr><td>한 가지만 바꾸기</td><td><code>Only change [X]. Keep everything else identical.</code></td></tr>
+  <tr><td>되돌리기</td><td><code>Go back to the reference for [X]</code></td></tr>
+  <tr><td>바뀐 것 지적</td><td><code>The [X] changed — restore it to match the reference</code></td></tr>
+  <tr><td>유지 항목 나열</td><td><code>Same face, same outfit, same props, same lighting</code></td></tr></table>
+  <p style="margin-top:8px"><code>Only change X. Keep everything else identical.</code> — 이 두 문장이 캐릭터 일관성 작업의 90%입니다.</p>`,
+ `<table>
+  <tr><td>Lock the character</td><td><code>Keep this exact character, do not redesign</code></td></tr>
+  <tr><td>Change one thing</td><td><code>Only change [X]. Keep everything else identical.</code></td></tr>
+  <tr><td>Revert</td><td><code>Go back to the reference for [X]</code></td></tr>
+  <tr><td>Name the drift</td><td><code>The [X] changed — restore it to match the reference</code></td></tr>
+  <tr><td>List what holds</td><td><code>Same face, same outfit, same props, same lighting</code></td></tr></table>
+  <p style="margin-top:8px"><code>Only change X. Keep everything else identical.</code> — those two sentences are ninety per cent of consistency work.</p>`
+];
+
+function applyLang(){
+  document.documentElement.lang=lang;
+  $$("[data-i18n]").forEach(e=>{ const v=T[e.dataset.i18n]; if(v) e.textContent=v[LI()]; });
+  $$("[data-i18n-html]").forEach(e=>{ const v=T[e.dataset.i18nHtml]; if(v) e.innerHTML=v[LI()]; });
+  $("#langKo").setAttribute("aria-pressed",String(lang==="ko"));
+  $("#langEn").setAttribute("aria-pressed",String(lang==="en"));
+  $("#howtoBody").innerHTML=HOWTO[LI()];
+  $("#patternBody").innerHTML=PATTERNS[LI()];
+  const sel=$("#model"), cur=sel.value; sel.innerHTML="";
+  MODELS.forEach(m=>{ const o=document.createElement("option"); o.value=m.id; o.textContent=m.label[LI()]; sel.appendChild(o); });
+  if(cur) sel.value=cur;
+  fillSelect("styleSel",STYLES); fillSelect("szSel",SHOTSIZE); fillSelect("agSel",ANGLES);
+  fillSelect("lnSel",LENSES); fillSelect("dfSel",DOF,{custom:false}); fillSelect("ltSel",LIGHTS); fillSelect("bgSel",BGS);
+  fillSelect("vwSel",[[ "방향","Facing", VIEWS.map(v=>[v[1],v[2],v[3]]) ]]);
+  [["fixSel",FIXES],["refSel",REFEDITS],["bgSel2",BGUSES]].forEach(([id,tbl])=>{
+    const el=$("#"+id); if(!el) return; const cur=el.value; el.innerHTML="";
+    tbl.forEach(g=>{ const og=document.createElement("optgroup"); og.label=gl(g);
+      g[2].forEach(it=>{ const o=document.createElement("option"); o.value=it[0]; o.textContent=lb(it); og.appendChild(o); });
+      el.appendChild(og); });
+    if(cur) el.value=cur;
+  });
+  buildViewList();
+  buildOptList("exprList",EXPRESSIONS,"expr");
+  buildOptList("poseList",POSES,"pose");
+  buildOptList("silList",SILHOUETTES,"sil");
+  buildOptList("cosList",COSTUMES,"cos");
+  buildTabs(); buildRubric(); paintGallery(); paintChecklist();
+  $("#keyState").textContent=apiKey()?t("set.keySaved"):t("set.keyNone");
+  $("#poseIn").placeholder=lang==="en"?"standing straight, arms relaxed at the sides":"standing straight, arms relaxed at her sides";
+  $("#sheetTitle").placeholder=lang==="en"?"Character model sheet":"캐릭터 모델 시트";
+  $("#keepIn").placeholder=keepAuto();
+  $("#comboAction").placeholder="sitting at the dining table, turned slightly toward the window";
+  syncAll(); fixApply(); secRenderAll(false); pickRenderAll(false);
+}
+function setLang(l){ lang=l; try{ localStorage.setItem("cm.lang",l); }catch(e){} applyLang(); }
+
+/* ============================================================
+   시작
+   ============================================================ */
+(async function init(){
+  const c0=cfgGet();
+  $("#negIn").value=c0.neg||DEF_NEG;
+  if(c0.aspect) $("#aspect").value=c0.aspect;
+  if(c0.size) $("#size").value=c0.size;
+  if(c0.nGen) $("#nGen").value=c0.nGen;
+  if(c0.mode) $("#apiMode").value=c0.mode;
+  if(c0.propFirst) $("#propFirst").checked=true;
+  if(c0.whyPick) $("#whyPick").value=c0.whyPick;
+  if(c0.pose) $("#poseIn").value=c0.pose;
+  if(c0.keep) $("#keepIn").value=c0.keep;
+  const sk=lsGet(LS.key,""); if(sk) $("#apiKey").value=sk;
+  paintCards(); paintLog(); paintMeter();
+  applyLang();
+  if(c0.model){ const o=$$("#model option").find(x=>x.value===c0.model); if(o) $("#model").value=c0.model; }
+  ["styleSel","szSel","vwSel","agSel","lnSel","dfSel","ltSel","bgSel"].forEach(id=>{
+    if(c0[id]!=null){ const s=$("#"+id); const has=$$("option",s).some(o=>o.value===c0[id]);
+      s.value=has?c0[id]:"__custom__"; if(!has&&$("#"+id+"_c")) $("#"+id+"_c").value=c0[id]; }
+    wireCustom(id,()=>{ saveCfg({[id]:pick(id)}); syncAll(); });
+  });
+
+  db=await openDB();
+  const rows=await dbAll(); rows.sort((a,b)=>String(a.at).localeCompare(String(b.at)));
+  rows.forEach(r=>{ try{ r.url=URL.createObjectURL(b64ToBlob(r.b64,r.mime)); S.shots.push(r); }catch(e){} });
+  if(!db) $("#galHint").textContent=t("msg.noStore");
+  paintGallery(); showTab(typeof c0.tab==="number"?c0.tab:0);
+
+  $("#langKo").onclick=()=>setLang("ko"); $("#langEn").onclick=()=>setLang("en");
+
+  $("#btnSaveKey").onclick=()=>{ const k=apiKey(); if(!k){ say(t("msg.nokey"),{err:true}); return; }
+    lsSet(LS.key,k); $("#keyState").textContent=t("set.keySaved")+" (…"+k.slice(-4)+")"; say(t("msg.keySaved")); };
+  $("#btnClearKey").onclick=()=>{ lsDel(LS.key); $("#apiKey").value=""; $("#keyState").textContent=t("set.keyNone"); say(t("msg.keyGone")); };
+  $("#btnTest").onclick=testKey;
+  ["model","aspect","size","nGen","apiMode"].forEach(id=>$("#"+id).onchange=()=>{ saveCfg({[id]:$("#"+id).value}); paintMeter(); });
+  $("#negIn").addEventListener("input",()=>{ saveCfg({neg:$("#negIn").value}); syncAll(); });
+  $("#btnNegReset").onclick=()=>{ $("#negIn").value=DEF_NEG; saveCfg({neg:DEF_NEG}); syncAll(); };
+
+  $$(".cc,.lc").forEach(i=>i.addEventListener("input",syncAll));
+  $("#poseIn").addEventListener("input",()=>{ saveCfg({pose:$("#poseIn").value}); syncAll(); });
+  $("#keepIn").addEventListener("input",()=>{ saveCfg({keep:$("#keepIn").value}); secRenderAll(false); fixApply(); });
+  $("#btnKeepFromCard").onclick=()=>{ $("#keepIn").value=keepAuto(); saveCfg({keep:keepAuto()}); };
+  $("#noPeople").addEventListener("change",syncAll);
+  $("#propFirst").addEventListener("change",()=>{ saveCfg({propFirst:$("#propFirst").checked}); syncAll(); });
+  $("#btnExample").onclick=()=>{ lsSet(LS.card,Object.assign({},card(),EX_CARD)); paintCards(); syncAll(); };
+  $("#btnClearCard").onclick=()=>{ lsSet(LS.card,{}); $$(".cc").forEach(i=>i.value=""); syncAll(); };
+  $("#btnExampleLoc").onclick=()=>{ lsSet(LS.loc,Object.assign({},loc(),EX_LOC)); paintCards(); syncAll(); };
+  $("#whyPick").addEventListener("input",()=>{ saveCfg({whyPick:$("#whyPick").value}); paintChecklist(); });
+  $("#rubricNote").addEventListener("input",()=>{ const s=lsGet(LS.rub,{}); s.note=$("#rubricNote").value; lsSet(LS.rub,s); });
+
+  $("#btnGen1").onclick=()=>generate({prompt:$("#basePrompt").value,step:t("st.l1"),tag:"front",kind:"C"});
+  $("#btnCopy1").onclick=()=>copy($("#basePrompt").value);
+  $("#btnSaveTxt").onclick=()=>saveText($("#basePrompt").value,"character_base.txt");
+
+  wireDrop("#dropSketch","#fileSketch",async files=>{
+    for(const f of files){ try{ const r=await readImageFile(f); r.id="k"+Date.now()+Math.random().toString(36).slice(2,6); S.sketches.push(r); }
+      catch(e){ say(e.message,{err:true}); } }
+    paintSketches(); if(S.sketches.length) say(S.sketches.length+" "+t("msg.uploaded")); });
+  $$("[data-sk]").forEach(b=>b.onclick=()=>{ $$("[data-sk]").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true"); $("#sketchPrompt").value=SKETCHP[b.dataset.sk](); });
+  $("#btnGenSketch").onclick=()=>{ if(!S.sketches.length){ say(t("msg.noSketch"),{err:true}); return; }
+    generate({prompt:$("#sketchPrompt").value,imgs:S.sketches,step:t("st.sketch"),tag:"fromsketch",kind:"C"}); };
+  $("#btnCopySketch").onclick=()=>copy($("#sketchPrompt").value);
+
+  wireDrop("#dropAnchor","#fileAnchor",async files=>{ if(!files.length) return;
+    try{ const r=await readImageFile(files[0]);
+      const rec=await addShot({b64:r.b64,mime:r.mime,step:t("st.up"),prompt:"(upload: "+r.name+")",model:"-",tag:"anchor",kind:"C"});
+      S.anchorId=rec.id; paintGallery(); say(t("msg.anchorSet")); }catch(e){ say(e.message,{err:true}); } });
+
+  $("#btnViewAll").onclick=()=>{ $$("#viewList input").forEach(cb=>cb.checked=cb.dataset.core==="1"); secRender("view",true); };
+  [["view","View"],["expr","Expr"],["pose","Pose"],["sil","Sil"],["cos","Cos"]].forEach(([k,C])=>{
+    $("#btn"+C+"Batch").onclick=()=>runSec(k);
+    $("#btn"+C+"Copy").onclick=()=>secCopy(k);
+    $("#btn"+C+"None").onclick=()=>secClear(k);
+    const f=SECS[k].free; if(f) $("#"+f).addEventListener("input",()=>secRender(k,true));
+  });
+
+  $("#fixSel").onchange=()=>fixApply(true); fixApply(true);
+  $("#btnBlank").onclick=()=>{ $("#editPrompt").value=""; $("#editPrompt").focus(); };
+  $("#btnGen2").onclick=()=>{ const a=shotById(S.anchorId); if(!a){ say(t("msg.noanchor"),{err:true}); return; }
+    const p=$("#editPrompt").value;
+    if(/\[[^\]]*\]/.test(p)){ say(t("msg.brackets"),{err:true}); return; }
+    generate({prompt:p,imgs:[{b64:a.b64,mime:a.mime}],step:t("st.fix"),tag:"fix",kind:"C"}); };
+  $("#btnCopy2").onclick=()=>copy($("#editPrompt").value);
+
+  $("#btnGen3").onclick=()=>generate({prompt:$("#locPrompt").value,step:t("st.loc"),tag:"empty_wide",kind:"L"});
+  $("#btnCopy3").onclick=()=>copy($("#locPrompt").value);
+  $$("[data-sh]").forEach(b=>b.onclick=()=>{ $$("[data-sh]").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true"); $("#shotPrompt").value=SHOTS[b.dataset.sh](); });
+  $("#btnGenShot").onclick=()=>{ const a=shotById(S.anchorId); if(!a){ say(t("msg.noanchor"),{err:true}); return; }
+    const p=$("#shotPrompt").value; if(/\[[^\]]*\]/.test(p)){ say(t("msg.brackets"),{err:true}); return; }
+    generate({prompt:p,imgs:[{b64:a.b64,mime:a.mime}],step:t("st.lshot"),tag:"shot",kind:"L"}); };
+  $("#btnCopyShot").onclick=()=>copy($("#shotPrompt").value);
+  $$("[data-cb]").forEach(b=>b.onclick=()=>{ $$("[data-cb]").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true"); $("#comboPrompt").value=COMBO[b.dataset.cb](); });
+  $("#comboAction").addEventListener("input",()=>{ const on=$$("[data-cb]").find(x=>x.getAttribute("aria-pressed")==="true");
+    if(on&&on.dataset.cb==="place") $("#comboPrompt").value=COMBO.place(); });
+  $("#btnClearCombo").onclick=()=>{ S.comboIds=[]; S.bgId=null; paintGallery(); };
+  $("#btnGenCombo").onclick=()=>{
+    const a=shotById(S.anchorId); if(!a){ say(t("msg.noanchor"),{err:true}); return; }
+    const g=bgImg(); if(!g){ say(t("msg.need2"),{err:true}); return; }
+    const imgs=[{b64:a.b64,mime:a.mime},{b64:g.b64,mime:g.mime}];
+    const p=$("#comboPrompt").value; if(/\[[^\]]*\]/.test(p)){ say(t("msg.brackets"),{err:true}); return; }
+    generate({prompt:p,imgs,step:t("st.combo"),tag:"with_character",kind:"L"}); };
+  $("#btnCopyCombo").onclick=()=>copy($("#comboPrompt").value);
+
+  // 참조 이미지로 수정 (탭2) · 배경 이미지 활용 (탭3)
+  wireDrop("#dropRef","#fileRef",f=>uploadAsRef(f,"C",t("st.upRef")));
+  wireDrop("#dropBg","#fileBg",  async f=>{ await uploadAsRef(f,"L",t("st.upBg"));
+    const last=refList()[refList().length-1]; if(last){ S.bgId=last.id; paintGallery(); } });
+  $("#refSel").onchange=()=>pickRender("ref",true);
+  $("#bgSel2").onchange=()=>pickRender("bg",true);
+  $("#btnRefGen").onclick=()=>pickGen("ref");   $("#btnRefCopy").onclick=()=>pickCopy("ref");
+  $("#btnBgGen").onclick=()=>pickGen("bg");     $("#btnBgCopy").onclick=()=>pickCopy("bg");
+  $("#btnClearRef").onclick=()=>{ S.comboIds=[]; S.bgId=null; paintGallery(); };
+  $("#btnClearBg").onclick=()=>{ S.comboIds=[]; S.bgId=null; paintGallery(); };
+  $("#btnBgAnchor").onclick=()=>{ const g=bgImg();
+    if(!g){ say(t("msg.noref"),{err:true}); return; }
+    S.anchorId=g.id; paintGallery(); say(t("msg.bgAnchor")); };
+
+  $("#btnSheetBuild").onclick=buildSheet; $("#btnSheetSave").onclick=saveSheet; $("#btnCmp").onclick=openCompare;
+  $("#btnExportMd").onclick=exportMd; $("#btnExportCsv").onclick=exportCsv;
+  $("#btnClearLog").onclick=()=>{ if(!confirm(t("msg.logAsk"))) return;
+    S.log=[]; lsSet(LS.log,S.log); paintLog(); paintMeter(); };
+
+  document.addEventListener("click",async e=>{
+    const z=e.target.closest("[data-zoom]");
+    if(z){ const s=shotById(z.dataset.zoom); if(s){ $("#lbImg").src=s.url; $("#lb").classList.add("show"); } return; }
+    const b=e.target.closest("[data-act]"); if(!b) return;
+    const id=b.dataset.id, act=b.dataset.act;
+    if(act==="anchor"){ S.anchorId=(S.anchorId===id)?null:id; paintGallery(); if(S.anchorId) say(t("msg.anchorSet")); }
+    else if(act==="combo"){ const i=S.comboIds.indexOf(id);
+      if(i>=0) S.comboIds.splice(i,1); else { if(S.comboIds.length>=3) return; S.comboIds.push(id); } paintGallery(); }
+    else if(act==="pick"){ const i=S.pickIds.indexOf(id); if(i>=0) S.pickIds.splice(i,1); else S.pickIds.push(id); paintGallery(); }
+    else if(act==="uncombo"){ const i=S.comboIds.indexOf(id); if(i>=0) S.comboIds.splice(i,1);
+      if(S.bgId===id) S.bgId=null; paintGallery(); }
+    else if(act==="bgpick"){ S.bgId=id; paintGallery(); say(t("msg.bgPick")); }
+    else if(act==="unsketch"){ S.sketches=S.sketches.filter(s=>s.id!==id); paintSketches(); }
+    else if(act==="dl"){ const s=shotById(id); if(s) saveBlob(b64ToBlob(s.b64,s.mime),s.file); }
+    else if(act==="del"){ const s=shotById(id); if(!s) return; if(!confirm(s.file+" "+t("msg.delAsk"))) return;
+      S.shots=S.shots.filter(x=>x.id!==id);
+      if(S.anchorId===id) S.anchorId=null;
+      S.comboIds=S.comboIds.filter(x=>x!==id); S.pickIds=S.pickIds.filter(x=>x!==id);
+      if(S.bgId===id) S.bgId=null;
+      await dbDel(id); try{ URL.revokeObjectURL(s.url); }catch(err){} paintGallery(); }
+  });
+  $("#btnDlAll").onclick=()=>{ if(!S.shots.length){ say(t("msg.noimgdl"),{err:true}); return; }
+    S.shots.forEach((s,i)=>setTimeout(()=>saveBlob(b64ToBlob(s.b64,s.mime),s.file),i*320)); };
+  $("#btnSelNone").onclick=()=>{ S.pickIds=[]; paintGallery(); };
+  $("#btnWipe").onclick=async()=>{ if(!confirm(t("msg.wipeAsk"))) return;
+    S.shots.forEach(s=>{ try{ URL.revokeObjectURL(s.url); }catch(e){} });
+    S.shots=[]; S.anchorId=null; S.comboIds=[]; S.bgId=null; S.pickIds=[]; await dbClear(); paintGallery(); };
+  $("#lbClose").onclick=()=>$("#lb").classList.remove("show");
+  $("#lb").onclick=e=>{ if(e.target.id==="lb") $("#lb").classList.remove("show"); };
+  $("#cmpClose").onclick=()=>$("#cmp").classList.remove("show");
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ $("#lb").classList.remove("show"); $("#cmp").classList.remove("show"); } });
+  paintSketches();
+})();
+</script>
+</body>
+</html>
