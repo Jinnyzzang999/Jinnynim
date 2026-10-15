@@ -52,7 +52,9 @@ nav.steps button[aria-selected="true"]{color:var(--ink); border-bottom-color:var
 nav.steps button .n{color:var(--teal); font-variant-numeric:tabular-nums; margin-right:5px}
 
 .cols{display:grid; grid-template-columns:minmax(0,1fr) 352px; gap:24px; align-items:start; margin-top:22px}
-@media (max-width:1020px){ .cols{grid-template-columns:1fr} }
+@media (max-width:1020px){ .cols{grid-template-columns:minmax(0,1fr)} }
+/* 그리드 자식은 기본 min-width:auto 라서 넓은 캔버스가 있으면 화면 밖으로 밀립니다 */
+.cols>main,.cols>aside{min-width:0}
 
 .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 16px 18px; margin-bottom:16px}
 .card > h2{font-size:15.5px; margin-bottom:3px}
@@ -96,6 +98,59 @@ textarea.prompt.multi{min-height:210px}
 .chip{border:1px solid var(--line); background:var(--bg); border-radius:999px; padding:5px 12px; font-size:12.5px; color:var(--ink-2)}
 .chip:hover{border-color:var(--teal); color:var(--ink)}
 .chip[aria-pressed="true"]{background:var(--teal); border-color:var(--teal); color:#fff}
+
+/* ---- 확인 창 ---- */
+#ask{position:fixed; inset:0; z-index:420; background:rgba(16,22,24,.42); padding:20px;
+  display:none; align-items:center; justify-content:center}
+#ask.show{display:flex}
+.abox{background:var(--panel); border:1px solid var(--line); border-radius:12px;
+  padding:22px 22px 18px; max-width:420px; width:100%; box-shadow:0 6px 30px rgba(0,0,0,.18)}
+.abox p{margin:0; font-size:14px; line-height:1.65; color:var(--ink)}
+.arow{display:flex; gap:8px; justify-content:flex-end; margin-top:18px}
+
+/* ---- 초청 코드 게이트 ---- */
+#gate{position:fixed; inset:0; z-index:400; background:var(--bg); padding:28px 20px;
+  display:none; align-items:center; justify-content:center; overflow-y:auto}
+body.gated #gate{display:flex}
+body.gated>header,body.gated>.wrap{display:none}
+.gbox{width:100%; max-width:520px; background:var(--panel); border:1px solid var(--line);
+  border-radius:14px; padding:30px 28px; box-shadow:0 2px 22px rgba(0,0,0,.05)}
+.gbox h1{font-size:22px; letter-spacing:-.3px; margin:0}
+.gsub{font-size:12.5px; color:var(--ink-3); margin:3px 0 0; letter-spacing:.3px}
+.gmsg{font-size:13.5px; color:var(--ink-2); margin:20px 0 0; line-height:1.65}
+.gmsg .en,.gfoot .en{display:block; color:var(--ink-3); font-size:12.5px; margin-top:3px}
+.grow{display:flex; gap:8px; margin-top:16px; flex-wrap:wrap}
+.grow input{flex:1 1 180px; min-width:0; padding:10px 12px; border:1px solid var(--line);
+  border-radius:8px; background:var(--bg); font-size:14px; font-family:inherit; color:var(--ink)}
+.grow input:focus{outline:none; border-color:var(--teal)}
+.gerr{min-height:19px; margin-top:10px; font-size:12.5px; color:#a4472b; line-height:1.5}
+.gfoot{font-size:12.5px; color:var(--ink-3); margin:22px 0 0; padding-top:16px;
+  border-top:1px solid var(--line); line-height:1.6}
+.gnew{display:none; margin-top:20px; padding-top:18px; border-top:1px solid var(--line)}
+#gate.mknew .gnew{display:block}
+.gnew b{font-size:13px}
+.gnew p{font-size:12.5px; color:var(--ink-2); margin:6px 0 0; line-height:1.6}
+.gnew code{background:var(--bg-2); padding:1px 5px; border-radius:4px; font-size:11.5px}
+.gnew textarea{width:100%; margin-top:10px; min-height:62px; padding:10px; border:1px solid var(--line);
+  border-radius:8px; background:var(--bg); font-family:var(--mono); font-size:11.5px; color:var(--ink); resize:vertical}
+
+/* ---- 9·11주차 수업 모드 ---- */
+.wkOnly{display:none !important}
+body.wk .wkOnly{display:block !important}
+body.wk th.wkOnly, body.wk td.wkOnly{display:table-cell !important}
+#wkBar{display:none}
+body.wk #wkBar{display:block; border-top:1px solid var(--line); background:var(--bg-2); padding:9px 0}
+#wkBar .in{max-width:1500px; margin:0 auto; padding:0 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+#wkBar .ttl{font-size:13px; font-weight:700; color:var(--ink)}
+#wkBar .obj{font-size:12.5px; color:var(--ink-2); flex:1; min-width:220px}
+#wkBar .tk{display:flex; gap:6px; align-items:center}
+#wkBar .tk .lbl{font-size:12px; color:var(--ink-3)}
+.trk{display:inline-block; min-width:17px; text-align:center; border-radius:4px; padding:0 4px;
+  font-size:10.5px; font-weight:700; background:var(--teal); color:#fff; margin-right:4px}
+.trk.B{background:var(--ink-2)} .trk.C{background:#b0562a} .trk.O{background:var(--ink-3)}
+.pairwarn{margin-top:9px; font-size:12.5px; color:#a4472b}
+.wc{font-size:12px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.wc.ok{color:var(--teal-d); font-weight:700}
 
 /* 선택 목록 — 체크박스 + 바로 생성 */
 .optlist{display:grid; grid-template-columns:1fr 1fr; gap:4px 10px; margin-top:4px}
@@ -185,10 +240,39 @@ code{font-family:var(--mono); font-size:12px; background:var(--panel-2); padding
 .lock .bar i{display:block; height:100%; background:var(--teal); width:0; transition:width .25s}
 .lock b{font-variant-numeric:tabular-nums}
 footer.note{color:var(--ink-3); font-size:12px; text-align:center; margin-top:30px; line-height:1.7}
-#sheetCanvas{max-width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; margin-top:12px}
+#sheetCanvas,#abCanvas{max-width:100%; height:auto; border:1px solid var(--line); border-radius:8px; background:#fff; margin-top:12px}
 </style>
 </head>
-<body>
+<body class="gated">
+
+<div id="gate">
+  <div class="gbox">
+    <h1>캐릭터 메이커</h1>
+    <p class="gsub">Character Maker</p>
+    <p class="gmsg">수업 참가자용 도구입니다. 받으신 초청 코드를 넣어 주세요.
+      <span class="en">A tool for students in this class. Enter the invitation code you were given.</span></p>
+    <div class="grow">
+      <input type="text" id="gateIn" autocomplete="off" autocapitalize="off" spellcheck="false"
+             placeholder="초청 코드 · invitation code">
+      <button class="btn pri" id="gateGo">들어가기 · Enter</button>
+    </div>
+    <div class="gerr" id="gateErr"></div>
+    <p class="gfoot">코드를 받지 못했다면 담당 교수에게 문의하세요.
+      <span class="en">If you don't have a code, ask your instructor.</span></p>
+
+    <div class="gnew" id="gateNew">
+      <b>새 코드 만들기</b>
+      <p>코드와 사용 기한을 넣고 [줄 만들기]를 누른 뒤, 나온 줄을 index.html 의 <code>GATE_CODES</code> 에 붙여 넣으세요.</p>
+      <div class="grow">
+        <input type="text" id="ncCode" placeholder="새 코드 — 예: DT5002-W9">
+        <input type="text" id="ncUntil" placeholder="기한 YYYY-MM-DD · 비우면 무기한">
+        <input type="text" id="ncNote" placeholder="메모 — 예: DT5002 students">
+        <button class="btn" id="ncGo">줄 만들기</button>
+      </div>
+      <textarea id="ncOut" readonly placeholder="여기에 붙여 넣을 줄이 나옵니다"></textarea>
+    </div>
+  </div>
+</div>
 
 <header class="top">
   <div class="top-in">
@@ -202,6 +286,13 @@ footer.note{color:var(--ink-3); font-size:12px; text-align:center; margin-top:30
       </div>
     </div>
     <nav class="steps" id="tabs" role="tablist"></nav>
+  </div>
+  <div id="wkBar">
+    <div class="in">
+      <span class="ttl" id="wkTitle"></span>
+      <span class="obj" id="wkObj"></span>
+      <span class="tk"><span class="lbl" data-i18n="tr.lb">트랙</span><span class="chips" id="trackSw"></span></span>
+    </div>
   </div>
 </header>
 
@@ -423,7 +514,14 @@ footer.note{color:var(--ink-3); font-size:12px; text-align:center; margin-top:30
     <h2 data-i18n="e.cos">의상 · 소품 베리에이션</h2>
     <p class="hint tight" data-i18n="e.cosHint">옷이 바뀌어도 같은 사람으로 보이는지, 고정 소품이 살아남는지 확인합니다.</p>
     <div class="optlist" id="cosList"></div>
-    <label class="f" style="margin-top:10px"><span class="lb" data-i18n="e.cosFree">직접 쓰는 의상</span><input type="text" id="cosFree"></label>
+    <div class="grid g2" style="margin-top:10px">
+      <label class="f"><span class="lb"><span data-i18n="e.cosFree">직접 쓰는 의상</span>
+        <em data-i18n="e.cosFreeE">영어로 — 예: in a borrowed jacket two sizes too big</em></span>
+        <input type="text" id="cosFree"></label>
+      <label class="f"><span class="lb"><span data-i18n="e.cosSeason">직접 쓰는 계절 · 날씨</span>
+        <em data-i18n="e.cosSeasonE">영어로 — 예: in the first warm day after a long winter</em></span>
+        <input type="text" id="cosSeasonFree"></label>
+    </div>
         <h3 class="sec" data-i18n="e.preview">보낼 프롬프트</h3>
     <p class="hint tight" data-i18n="e.previewHint">선택한 항목이 여기 그대로 조립됩니다. 고치면 고친 내용이 전송됩니다. 키가 없으면 복사해서 무료 Gemini 앱에 쓰세요.</p>
     <textarea class="prompt multi" id="cosPrompt" spellcheck="false"></textarea>
@@ -575,6 +673,61 @@ footer.note{color:var(--ink-3); font-size:12px; text-align:center; margin-top:30
 
 <!-- ======== 4 SHEET ======== -->
 <section class="panel" id="p4" role="tabpanel">
+
+  <div class="card wkOnly">
+    <h2 data-i18n="in.title">다른 툴 결과 가져오기</h2>
+    <p class="hint" data-i18n="in.hint">ChatGPT·Gemini·AI Studio·Firefly에서 받은 이미지를 여기에 올리면 같은 기록에 함께 쌓입니다. 올리기 전에 위에서 트랙을 확인하세요.</p>
+    <div class="grid g3">
+      <label class="f"><span class="lb" data-i18n="in.tool">어느 툴에서 받았나</span>
+        <select id="inTool">
+          <option>ChatGPT</option><option>Gemini</option><option>Google AI Studio</option>
+          <option>Adobe Firefly</option><option>Midjourney</option><option>ComfyUI</option><option>Other</option>
+        </select></label>
+      <label class="f"><span class="lb" data-i18n="in.item">어떤 항목</span>
+        <select id="inItem">
+          <optgroup label="턴어라운드" id="inGrpView">
+            <option value="front">정면</option><option value="threeq">3/4 측면</option>
+            <option value="side">옆면</option><option value="back">뒷면</option>
+          </optgroup>
+          <optgroup label="그 밖" id="inGrpEtc">
+            <option value="expr">표정</option><option value="pose">포즈</option>
+            <option value="sil">실루엣</option><option value="cos">의상</option><option value="etc">기타</option>
+          </optgroup>
+        </select></label>
+      <label class="f"><span class="lb" data-i18n="tr.lb">트랙</span>
+        <select id="inTrack"></select></label>
+    </div>
+    <label class="f" style="margin-top:10px"><span class="lb"><span data-i18n="in.name">항목 이름</span>
+      <em data-i18n="in.nameE">표정·포즈처럼 여러 장일 때 — 앱에서 쓴 이름과 같게 적어야 A와 B가 짝이 됩니다</em></span>
+      <input type="text" id="inItemFree" placeholder="worried"></label>
+    <label class="f" style="margin-top:10px"><span class="lb"><span data-i18n="in.prompt">보낸 프롬프트</span>
+      <em data-i18n="in.promptE">복사한 프롬프트가 자동으로 들어옵니다</em></span>
+      <textarea id="inPrompt" style="min-height:64px"></textarea></label>
+    <div class="drop" id="dropIn" style="margin-top:10px"><input type="file" id="fileIn" accept="image/*" multiple>
+      <b data-i18n="in.drop">클릭하거나 이미지를 끌어다 놓기 · 여러 장 가능</b></div>
+  </div>
+
+  <div class="card wkOnly">
+    <h2 data-i18n="ab.title">A / B 비교 시트</h2>
+    <p class="hint" data-i18n="ab.hint">갤러리에서 [선택]한 이미지를 항목별로 짝지어 조판합니다. 같은 항목의 A와 B가 한 줄에 나란히 놓입니다.</p>
+    <div class="drop" id="dropOrigin"><input type="file" id="fileOrigin" accept="image/*">
+      <b data-i18n="ab.originDrop">원본 드로잉 올리기</b></div>
+    <div class="refs" id="refsOrigin"></div>
+    <label class="f" style="margin-top:12px"><span class="lb" data-i18n="ab.prompt">두 트랙에 공통으로 쓴 프롬프트</span>
+      <textarea id="abPrompt" style="min-height:56px"></textarea></label>
+    <div class="row" style="margin-top:10px">
+      <label class="f" style="max-width:150px"><span class="lb" data-i18n="s.title">시트 제목</span><input type="text" id="abTitle"></label>
+      <label class="f" style="max-width:130px"><span class="lb" data-i18n="ab.cell">칸 크기</span>
+        <select id="abCell"><option value="420">420px</option><option value="560" selected>560px</option><option value="760">760px</option></select></label>
+      <span class="spacer"></span>
+      <span class="kv"><span data-i18n="b.selected">선택</span> <b id="abCnt">0</b></span>
+      <button class="btn" id="btnAbBuild" data-i18n="ab.build">시트 조판</button>
+      <button class="btn pri" id="btnAbSave" data-i18n="ab.save">PNG 저장</button>
+    </div>
+    <div class="pairwarn" id="abWarn" style="display:none"></div>
+    <canvas id="abCanvas" width="10" height="10"></canvas>
+  </div>
+
   <div class="card">
     <h2 data-i18n="s.sheet">모델 시트 만들기</h2>
     <p class="hint" data-i18n="s.sheetHint">갤러리에서 [선택]한 이미지를 한 장의 시트로 조판합니다. 제출용 파일이 바로 나옵니다.</p>
@@ -613,10 +766,39 @@ footer.note{color:var(--ink-3); font-size:12px; text-align:center; margin-top:30
     </div>
     <div class="scroll" style="margin-top:14px">
       <table class="log"><thead><tr><th>#</th><th data-i18n="s.time">시각</th><th data-i18n="s.step">단계</th>
+        <th class="wkOnly" data-i18n="tr.lb">트랙</th>
         <th data-i18n="s.file">파일명</th><th data-i18n="s.modelc">모델</th><th data-i18n="s.prompt">프롬프트</th></tr></thead>
         <tbody id="logBody"></tbody></table>
     </div>
     <div class="empty" id="logEmpty" data-i18n="s.noLog">아직 기록이 없습니다.</div>
+  </div>
+
+  <div class="card wkOnly">
+    <h2 data-i18n="rf.title">성찰 문단</h2>
+    <p class="hint" data-i18n="rf.hint">영어로, 세 질문에 이어서 답하세요. 그림이 아니라 이 문단이 평가의 중심입니다.</p>
+    <label class="f"><span class="lb"><span data-i18n="rf.q1">A에서 무너진 것 하나</span>
+      <em data-i18n="rf.q1e">말로 설명했을 때 내 캐릭터가 아니게 된 지점 — 구체적으로</em></span>
+      <textarea id="rf1" style="min-height:62px"></textarea></label>
+    <label class="f" style="margin-top:10px"><span class="lb"><span data-i18n="rf.q2">B에서도 살아남지 못한 것 하나</span>
+      <em data-i18n="rf.q2e">그림을 직접 줬는데도 모델이 놓친 것</em></span>
+      <textarea id="rf2" style="min-height:62px"></textarea></label>
+    <label class="f" style="margin-top:10px"><span class="lb"><span data-i18n="rf.q3">그래서 다음에 무엇을 바꿀 것인가</span>
+      <em data-i18n="rf.q3e">프롬프트 문장을 고칠 것인가, 캐릭터 디자인 자체를 고칠 것인가</em></span>
+      <textarea id="rf3" style="min-height:62px"></textarea></label>
+    <div class="row" style="margin-top:10px">
+      <span class="wc" id="rfCount">0</span>
+      <span class="kv" data-i18n="rf.range">150~200 단어</span>
+    </div>
+  </div>
+
+  <div class="card wkOnly">
+    <h2 data-i18n="bn.title">제출 묶음 만들기</h2>
+    <p class="hint" data-i18n="bn.hint">시트 PNG · 성찰 문단 · 수정 이력이 zip 한 벌로 묶입니다. 이 파일 하나만 제출하면 됩니다.</p>
+    <div class="row">
+      <label class="f" style="max-width:260px"><span class="lb" data-i18n="bn.name">이름 · 학번</span><input type="text" id="bnName"></label>
+      <span class="spacer"></span>
+      <button class="btn pri" id="btnBundle" data-i18n="bn.make">제출 묶음 (.zip)</button>
+    </div>
   </div>
 
   <div class="card">
@@ -652,12 +834,87 @@ footer.note{color:var(--ink-3); font-size:12px; text-align:center; margin-top:30
 <footer class="note"><span data-i18n="app.foot">AI는 제안을 하고, 결정은 내가 합니다. 무엇을 고정했고 무엇을 바꿨고 왜 이 버전을 골랐는지를 기록하세요.</span></footer>
 </div>
 
+<div id="ask"><div class="abox">
+  <p id="askMsg"></p>
+  <div class="arow"><button class="btn" id="askNo"></button><button class="btn pri" id="askYes"></button></div>
+</div></div>
+
 <div id="status"></div>
 <div id="lb"><button class="close" id="lbClose">&times;</button><img id="lbImg" alt=""></div>
 <div id="cmp"><button class="close" id="cmpClose">&times;</button><div class="inner"><h3 id="cmpTitle"></h3><div class="pane" id="cmpPane"></div></div></div>
 
 <script>
 "use strict";
+
+/* ============================================================
+   초청 코드
+   ------------------------------------------------------------
+   분명히 해 둘 것: 이것은 자물쇠가 아니라 문패입니다.
+   판정이 브라우저 안에서 일어나므로, 소스를 읽을 줄 아는 사람은
+   우회할 수 있습니다. 목적은 "링크를 받은 수업 참가자만 조용히
+   쓰게 하는 것"이지, 작정한 사람을 막는 것이 아닙니다.
+   그래서 이 페이지에는 비밀(공용 API 키 등)을 절대 넣지 마세요.
+
+   코드를 바꾸려면 ─ 주소 뒤에 ?newcode=1 을 붙여 열면
+   새 코드의 해시를 만들어 주는 도구가 나옵니다. 거기서 나온 줄을
+   아래 목록에 붙여 넣으세요. 목록을 비우면 게이트가 꺼집니다.
+   목록에서 줄을 지우면 그 코드로 들어와 있던 사람도 다음 방문에
+   다시 막힙니다.
+   ============================================================ */
+const GATE_CODES=[
+ /* 코드: DT5002-W9   ·  2027-02-28 까지 */
+ {h:"9195ed84c23e387e", until:"2027-02-28", note:"DT5002 students"},
+ /* 코드: JINNY-ADMIN ·  만료 없음 (교수자용) */
+ {h:"5998af3d99123267", until:"",           note:"instructor"}
+];
+
+/* 해시는 코드 문자열이 소스에 그대로 보이지 않게 하려는 것입니다.
+   암호학적 강도가 목적이 아닙니다 — 게이트 자체가 우회 가능하므로
+   해시를 깨는 것보다 게이트를 건너뛰는 쪽이 언제나 더 쉽습니다.
+   crypto.subtle 은 로컬 파일(file://)에서 없을 수 있어 쓰지 않습니다. */
+function gateHash(s){
+  const x="jinnynim.gate.v1."+String(s==null?"":s).trim().toLowerCase();
+  let a=0x811c9dc5>>>0, b=0x01000193>>>0;
+  for(let r=0;r<400;r++){
+    for(let i=0;i<x.length;i++){
+      a=(a^x.charCodeAt(i))>>>0; a=Math.imul(a,16777619)>>>0;
+      b=Math.imul(b^a,2246822519)>>>0;
+    }
+    a=(a^(b>>>13))>>>0; b=(b^(a>>>7))>>>0;
+  }
+  return (a>>>0).toString(16).padStart(8,"0")+(b>>>0).toString(16).padStart(8,"0");
+}
+const GATE_LS="cm.gatepass";
+const gateOn=()=>GATE_CODES.some(c=>c.h&&c.h.indexOf("__PLACEHOLDER")<0);
+const gateToday=()=>{ const d=new Date(),p=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); };
+/* 해시로 통과 여부를 봅니다. 목록에서 사라졌거나 기한이 지났으면 거부합니다. */
+function gateByHash(h){
+  const hit=GATE_CODES.find(c=>c.h===h);
+  if(!hit) return {ok:false,why:"bad"};
+  if(hit.until&&gateToday()>hit.until) return {ok:false,why:"expired",until:hit.until};
+  return {ok:true,h:h,note:hit.note||""};
+}
+const gateCheck=code=>gateByHash(gateHash(code));
+function gateLet(h){ try{ localStorage.setItem(GATE_LS,h); }catch(e){}
+  document.body.classList.remove("gated"); }
+/* 저장된 통행증 · 주소에 담긴 코드(?c=…) 둘 다 받습니다.
+   주소로 들어온 경우 코드가 주소창에 남지 않게 지웁니다. */
+function gateBoot(){
+  if(!gateOn()){ document.body.classList.remove("gated"); return true; }
+  let q=null;
+  try{ q=new URLSearchParams(location.search).get("c"); }catch(e){}
+  if(q){ const r=gateCheck(q);
+    if(r.ok){ gateLet(r.h);
+      try{ const u=new URL(location.href); u.searchParams.delete("c");
+        history.replaceState(null,"",u.pathname+u.search+u.hash); }catch(e){}
+      return true; } }
+  let saved=null; try{ saved=localStorage.getItem(GATE_LS); }catch(e){}
+  if(saved&&gateByHash(saved).ok){ document.body.classList.remove("gated"); return true; }
+  if(saved){ try{ localStorage.removeItem(GATE_LS); }catch(e){} }
+  return false;
+}
+
 /* ============================================================
    선택 항목 테이블 — [프롬프트 조각, 한국어 라벨, English label]
    그룹: [한국어 그룹명, English group name, [항목…]]
@@ -856,16 +1113,46 @@ const SILHOUETTES=[
 
 const COSTUMES=[
  ["계절 · 날씨","Season & weather",[
-  ["a winter version of the same outfit — coat, scarf, warmer layers","겨울옷","Winter"],
-  ["a summer version of the same outfit — short sleeves, lighter fabric","여름옷","Summer"],
-  ["soaked in the rain, hair and clothes wet and clinging","비에 젖음","Soaked in rain"]
+  ["a spring version of the same outfit — one light layer over the top, sleeves pushed up","봄","Spring"],
+  ["a summer version of the same outfit — short sleeves, thin light fabric","한여름","Midsummer"],
+  ["an autumn version of the same outfit — a knitted layer added, longer sleeves","가을","Autumn"],
+  ["a deep winter version of the same outfit — a heavy coat, a scarf wound twice, thick layers","한겨울","Deep winter"],
+  ["soaked in the rain, hair flattened, clothes wet and clinging to the body","비에 젖음","Soaked in rain"],
+  ["a rain cover pulled on over the same outfit, hood up","우비 차림","In a rain cover"],
+  ["standing in falling snow, snow settled on the shoulders and in the hair","눈 맞음","In falling snow"],
+  ["in strong wind, clothes and hair blown to one side","바람","In strong wind"],
+  ["in sweltering heat, collar open, sleeves rolled up, skin damp","더위","Sweltering heat"],
+  ["shivering in the cold, shoulders hunched, hands pulled up into the sleeves","추위","Shivering cold"]
  ]],
- ["상황","Situation",[
-  ["in a school uniform","교복","School uniform"],
+ ["일상","Everyday",[
+  ["in ordinary everyday clothes","평상복","Everyday clothes"],
+  ["in comfortable clothes worn only at home","집에서 입는 편한 옷","Clothes worn at home"],
   ["in pyjamas, ready for bed","잠옷","Pyjamas"],
-  ["in formal clothes for an important occasion","정장 · 격식","Formal"],
-  ["in work clothes, sleeves rolled up","작업복","Work clothes"],
-  ["clothes dirty and torn after something went wrong","더럽고 찢어진 옷","Dirty and torn"]
+  ["in a school uniform","교복","School uniform"],
+  ["in sportswear — a tracksuit and trainers","운동복","Sportswear"]
+ ]],
+ ["격식 · 행사","Formal & occasion",[
+  ["in a tailored suit","양복","Suit"],
+  ["in an evening dress","드레스","Evening dress"],
+  ["dressed as a guest at a wedding","예식 하객 복장","Dressed for a wedding"],
+  ["in the traditional dress of this character's own culture","전통 의상","Traditional dress"]
+ ]],
+ ["일 · 역할","Work & role",[
+  ["in work overalls, sleeves rolled up","작업복","Work overalls"],
+  ["a cook's apron tied over the same clothes","앞치마","Cook's apron"],
+  ["a white coat worn over the same clothes","흰 가운","White coat"],
+  ["in a service uniform with a name badge","제복","Service uniform"]
+ ]],
+ ["활동","Activity",[
+  ["in swimwear","수영복","Swimwear"],
+  ["in hiking gear with a small backpack","등산복","Hiking gear"],
+  ["in a stage costume, brighter and more exaggerated than the everyday outfit","무대 의상","Stage costume"]
+ ]],
+ ["옷의 상태","The state of the clothes",[
+  ["clothes dirty and torn after something went wrong","더럽고 찢어진 옷","Dirty and torn"],
+  ["wearing clothes one size too big, handed down from someone else","한 치수 큰 옷","One size too big"],
+  ["in brand-new clothes, stiff and uncreased","새 옷","Brand new"],
+  ["in the same outfit worn for years — faded, softened, mended at one spot","오래 입은 옷","Worn for years"]
  ]]
 ];
 
@@ -990,6 +1277,7 @@ const T={
 "e.preview":["보낼 프롬프트","What will be sent"],
 "e.previewHint":["선택한 항목이 여기 그대로 조립됩니다. 고치면 고친 내용이 전송됩니다. 키가 없으면 복사해서 무료 Gemini 앱에 쓰세요.","Everything you ticked is assembled here. Edit it and the edit is what gets sent. With no API key, copy it into the free Gemini app."],"b.selected":["선택","Selected"],"b.drop":["클릭하거나 이미지를 끌어다 놓기","Click, or drop an image here"],
 "opt.custom":["✏️ 직접 입력","✏️ Write my own"],
+"opt.none":["— 고르지 않음 —","— not chosen —"],
 "set.key":["API 키 연결","Connect your API key"],
 "set.keyHint":["키는 이 브라우저에만 저장됩니다. 생성 요청은 내 브라우저에서 Google로 바로 갑니다.","Your key is stored only in this browser. Requests go straight from your browser to Google."],
 "set.paidWarn":["<b>이미지 생성 API는 무료 등급이 없습니다.</b> Google AI Studio에서 키를 만든 뒤 결제를 활성화해야 작동합니다. 1장당 약 $0.034(1K) — 50장이면 약 $1.7입니다. 결제를 쓰지 않으려면 <b>[프롬프트만 복사]</b>로 무료 Gemini 앱에 붙여 넣으세요. 실습 내용은 동일합니다.","<b>There is no free tier for the image-generation API.</b> Create a key in Google AI Studio and enable billing. About $0.034 per image at 1K — 50 images is roughly $1.70. If you would rather not use billing, hit <b>[Copy prompt only]</b> and paste into the free Gemini app. The exercise is identical either way."],
@@ -1058,6 +1346,9 @@ const T={
 "e.cos":["의상 · 소품 베리에이션","Costume & prop variations"],
 "e.cosHint":["옷이 바뀌어도 같은 사람으로 보이는지, 고정 소품이 살아남는지 확인합니다.","Check whether the character survives a change of clothes — and whether the signature prop survives with them."],
 "e.cosFree":["직접 쓰는 의상","Write your own costume"],
+"e.cosFreeE":["영어로 — 예: in a borrowed jacket two sizes too big","in English — e.g. in a borrowed jacket two sizes too big"],
+"e.cosSeason":["직접 쓰는 계절 · 날씨","Write your own season or weather"],
+"e.cosSeasonE":["영어로 — 예: in the first warm day after a long winter","in English — e.g. on the first warm day after a long winter"],
 "e.fix":["수정 · 되돌리기","Fixing & restoring"],
 "e.fixHint":["증상을 고르면 그 증상에 맞는 지시문이 들어갑니다. 대괄호는 내 내용으로 바꿔야 생성됩니다.","Pick the symptom and the matching instruction appears. Replace anything in [brackets] before generating."],
 "e.blank":["빈 양식","Blank form"],"e.patterns":["꼭 익혀 둘 영어 패턴 5개","Five sentence patterns worth memorising"],
@@ -1141,6 +1432,9 @@ const T={
 "msg.wipeAsk":["갤러리의 이미지를 모두 삭제합니다. 되돌릴 수 없습니다. 계속할까요?","This deletes every image in the gallery and cannot be undone. Continue?"],
 "msg.delAsk":["를 삭제할까요?","— delete it?"],
 "msg.logAsk":["생성 기록을 모두 지웁니다. 이미지는 남습니다. 계속할까요?","This clears the log. Your images stay. Continue?"],
+"ask.yes":["삭제","Delete"],"ask.no":["취소","Cancel"],
+"msg.deleted":["삭제했습니다.","Deleted."],
+"msg.wiped":["갤러리를 비웠습니다.","Gallery cleared."],
 "msg.netBlock":["요청이 막혔습니다. 이 HTML 파일을 브라우저에서 직접 열었는지 확인하세요.","The request was blocked. Check that you opened this HTML file directly in a browser."],
 "msg.noStore":["이 브라우저는 이미지 저장을 지원하지 않습니다. 생성 즉시 [저장]을 누르세요.","This browser cannot store images. Save each one as soon as it appears."],
 "msg.uploaded":["장을 참조로 담았습니다.","images added as references."],
@@ -1149,6 +1443,80 @@ const T={
 "msg.need2":["공간 이미지를 [참조]로 담으세요. 캐릭터는 기준 이미지를 씁니다.","Mark a space image as [Ref]. The character comes from the anchor."],
 "msg.noSketch":["내 이미지를 먼저 올리세요.","Upload your image first."]
 };
+
+/* ============================================================
+   9·11주차 수업 모드 — 추가 문구
+   ============================================================ */
+Object.assign(T,{
+"wk.9":["9주차 · 같은 캐릭터, 두 경로","Week 9 · One character, two routes"],
+"wk.9o":["말로만 만든 것과 내 그림에서 출발한 것을 같은 조건으로 비교합니다.","Compare what words alone produce against what your own drawing produces, under identical conditions."],
+"wk.11":["11주차 · 원본과의 거리","Week 11 · Distance from the original"],
+"wk.11o":["8주차 원본을 기준으로 두고, 무엇이 살아남았고 무엇이 증발했는지 봅니다.","With your week 8 original as the reference, see what survived and what evaporated."],
+"tr.lb":["트랙","Track"],
+"tr.A":["A · 말로만","A · words only"],
+"tr.B":["B · 내 그림에서","B · from my drawing"],
+"tr.C":["C · 재시도","C · retry"],
+"tr.hint":["지금 고른 트랙이 파일명과 기록에 자동으로 붙습니다. 경로를 바꿀 때마다 여기를 먼저 누르세요.","The selected track is stamped onto every filename and log row. Switch it here before you change route."],
+"tr.set":["트랙을 바꿨습니다 —","Track switched —"],
+"in.title":["다른 툴 결과 가져오기","Bring in results from other tools"],
+"in.hint":["ChatGPT·Gemini·AI Studio·Firefly에서 받은 이미지를 여기에 올리면 같은 기록에 함께 쌓입니다. 올리기 전에 위에서 트랙을 확인하세요.","Drop images you got from ChatGPT, Gemini, AI Studio or Firefly here and they join the same log. Check the track above before you upload."],
+"in.tool":["어느 툴에서 받았나","Which tool"],
+"in.item":["어떤 항목","Which item"],
+"in.prompt":["보낸 프롬프트","The prompt you sent"],
+"in.promptE":["복사한 프롬프트가 자동으로 들어옵니다","the prompt you copied is filled in automatically"],
+"in.drop":["클릭하거나 이미지를 끌어다 놓기 · 여러 장 가능","Click or drop images · several at once"],
+"in.added":["장을 기록에 담았습니다.","images added to the log."],
+"in.noPrompt":["보낸 프롬프트를 먼저 적으세요. 프롬프트 없는 기록은 비교에 쓸 수 없습니다.","Write the prompt you sent first. A row without a prompt is useless for comparison."],
+"in.grpView":["턴어라운드","Turnaround"],"in.grpEtc":["그 밖","Other"],
+"in.name":["항목 이름","Item name"],
+"in.nameE":["표정·포즈처럼 여러 장일 때 — 앱에서 쓴 이름과 같게 적어야 A와 B가 짝이 됩니다","for expressions and poses — use the same name as in the app so A and B pair up"],
+"it.view":["턴어라운드","Turnaround"],"it.expr":["표정","Expression"],"it.pose":["포즈","Pose"],
+"it.front":["정면","Front"],"it.threeq":["3/4 측면","Three-quarter"],"it.side":["옆면","Side"],"it.back":["뒷면","Back"],
+"it.sil":["실루엣","Silhouette"],"it.cos":["의상","Costume"],"it.etc":["기타","Other"],
+"ab.title":["A / B 비교 시트","A / B comparison sheet"],
+"ab.hint":["갤러리에서 [선택]한 이미지를 항목별로 짝지어 조판합니다. 같은 항목의 A와 B가 한 줄에 나란히 놓입니다.","Picks from the gallery are paired by item. The A and B of one item sit side by side on the same row."],
+"ab.origin":["8주차 원본","Week 8 original"],
+"ab.originDrop":["원본 드로잉 올리기","Upload your original drawing"],
+"ab.prompt":["두 트랙에 공통으로 쓴 프롬프트","The prompt both tracks were given"],
+"ab.build":["시트 조판","Lay out sheet"],
+"ab.save":["PNG 저장","Save PNG"],
+"ab.unpaired":["짝이 없는 항목이 있습니다 —","Some items have no pair —"],
+"ab.nopick":["갤러리에서 비교할 이미지를 [선택]하세요.","Mark the images to compare with [Pick] in the gallery."],
+"ab.ready":["시트가 준비됐습니다.","Sheet is ready."],
+"ab.noSheet":["먼저 시트를 조판하세요.","Lay out the sheet first."],
+"ab.cell":["칸 크기","Cell size"],
+"rf.title":["성찰 문단","Reflection"],
+"rf.hint":["영어로, 세 질문에 이어서 답하세요. 그림이 아니라 이 문단이 평가의 중심입니다.","Answer the three questions in English, in order. This paragraph, not the images, is what is assessed."],
+"rf.q1":["A에서 무너진 것 하나","One thing that broke in A"],
+"rf.q1e":["말로 설명했을 때 내 캐릭터가 아니게 된 지점 — 구체적으로","where words alone stopped producing your character — be specific"],
+"rf.q2":["B에서도 살아남지 못한 것 하나","One thing that did not survive even in B"],
+"rf.q2e":["그림을 직접 줬는데도 모델이 놓친 것","what the model lost even with your drawing in hand"],
+"rf.q3":["그래서 다음에 무엇을 바꿀 것인가","So what will you change next"],
+"rf.q3e":["프롬프트 문장을 고칠 것인가, 캐릭터 디자인 자체를 고칠 것인가","the wording of the prompt, or the character design itself"],
+"rf.words":["단어","words"],
+"rf.range":["150~200 단어","150–200 words"],
+"rf.short":["아직 짧습니다","still short"],
+"rf.long":["너무 깁니다","too long"],
+"rf.ok":["분량 적절","good length"],
+"bn.title":["제출 묶음 만들기","Build submission bundle"],
+"bn.hint":["시트 PNG · 성찰 문단 · 수정 이력이 zip 한 벌로 묶입니다. 이 파일 하나만 제출하면 됩니다.","The sheet PNG, your reflection and the revision log go into one zip. Submit that single file."],
+"bn.make":["제출 묶음 (.zip)","Submission bundle (.zip)"],
+"bn.done":["제출 묶음을 내려받았습니다.","Bundle downloaded."],
+"bn.name":["이름 · 학번","Name · student ID"],
+"ck9.0":["트랙 A(말로만)로 세 항목을 만들었다","Track A (words only) covers three items"],
+"ck9.1":["트랙 B(내 그림에서)로 같은 세 항목을 만들었다","Track B (from my drawing) covers the same three items"],
+"ck9.2":["A와 B의 항목이 서로 짝이 맞는다","Every A has a matching B"],
+"ck9.3":["A/B 비교 시트를 조판했다","The A/B comparison sheet is laid out"],
+"ck9.4":["성찰 문단이 150단어를 넘는다","The reflection is over 150 words"],
+"ck9.5":["다른 툴 결과를 최소 1장 기록에 담았다","At least one result from another tool is in the log"],
+"ck11.0":["8주차 원본을 올렸다","The week 8 original is uploaded"],
+"ck11.1":["9주차 A·B 결과가 갤러리에 있다","The week 9 A and B results are in the gallery"],
+"ck11.2":["트랙 C로 재시도한 결과가 있다","There is a track C retry"],
+"ck11.3":["비교 시트를 조판했다","The comparison sheet is laid out"],
+"ck11.4":["성찰 문단이 150단어를 넘는다","The reflection is over 150 words"],
+"ck11.5":["AI가 더 낫게 만든 지점에 대해 받아들일지 적었다","You wrote whether you accept what the AI improved"]
+});
+
 let lang = (function(){ try{ return localStorage.getItem("cm.lang")==="en"?"en":"ko"; }catch(e){ return "ko"; } })();
 const LI = ()=> lang==="en"?1:0;
 function t(k){ const v=T[k]; return v?v[LI()]:k; }
@@ -1172,8 +1540,29 @@ function say(msg,o){ o=o||{};
   if(!o.hold&&!o.busy) statusTimer=setTimeout(()=>el.classList.remove("show"), o.err?7000:3200);
 }
 function hideSay(){ $("#status").classList.remove("show"); }
+
+/* ============================================================
+   확인 창 — 브라우저 confirm() 을 쓰지 않습니다.
+   크롬은 대화상자가 몇 번 뜨면 "추가 대화상자 표시 안 함" 선택지를 띄우는데,
+   그걸 한 번 체크한 학생은 그 뒤로 confirm() 이 항상 false 를 돌려주어
+   삭제 버튼이 아무 반응 없이 먹통이 됩니다. 페이지 안에서 직접 묻습니다.
+   ============================================================ */
+function ask(msg,okLabel){
+  return new Promise(res=>{
+    const box=$("#ask"), m=$("#askMsg"), y=$("#askYes"), n=$("#askNo");
+    m.textContent=msg; y.textContent=okLabel||t("ask.yes"); n.textContent=t("ask.no");
+    const done=v=>{ box.classList.remove("show"); y.onclick=n.onclick=null;
+      document.removeEventListener("keydown",key); res(v); };
+    const key=e=>{ if(e.key==="Escape") done(false); if(e.key==="Enter") done(true); };
+    y.onclick=()=>done(true); n.onclick=()=>done(false);
+    document.addEventListener("keydown",key);
+    box.classList.add("show"); y.focus();
+  });
+}
 async function copy(text){
   if(!text||!text.trim()){ say(t("msg.empty"),{err:true}); return; }
+  /* 복사한 프롬프트를 기억해 둡니다 — 다른 툴에서 받은 결과를 담을 때 자동으로 채워집니다 */
+  S.lastCopied=text; const ip=$("#inPrompt"); if(ip&&!ip.value.trim()) ip.value=text;
   try{ await navigator.clipboard.writeText(text); say(t("msg.copied")); }
   catch(e){ const ta=document.createElement("textarea"); ta.value=text; ta.style.cssText="position:fixed;opacity:0";
     document.body.appendChild(ta); ta.select();
@@ -1219,19 +1608,56 @@ const MODELS=[
  {id:"gemini-2.5-flash-image",      label:["Nano Banana (구버전)","Nano Banana (legacy)"], api:"legacy", price:{"1K":.039,"2K":.039,"4K":.039}}
 ];
 const BASE="https://generativelanguage.googleapis.com/v1beta";
-const LS={key:"cm.apikey",card:"cm.card",loc:"cm.loc",log:"cm.log",cfg:"cm.cfg",rub:"cm.rubric"};
+const LS={key:"cm.apikey",card:"cm.card",loc:"cm.loc",log:"cm.log",cfg:"cm.cfg",rub:"cm.rubric",ref:"cm.reflect"};
 const DEF_NEG="no text, no watermark, no logo";
 /* 기준 이미지에 맞는 기본값 — 첫 항목이 아니라 "쓸 만한 출발점"으로 */
-const DEFAULTS={styleSel:"children's book watercolor style", szSel:"full body shot, head to feet filling the frame",
+/* 처음에는 모든 선택칸을 비워 둡니다.
+   미리 골라 두면 학생이 숏 크기·앵글·렌즈·빛을 스스로 정하지 않고 지나갑니다.
+   한 벌이 통째로 필요하면 [예시 채우기] 버튼이 카드와 선택칸을 함께 채웁니다. */
+const DEFAULTS={};
+const EX_PICKS={styleSel:"children's book watercolor style", szSel:"full body shot, head to feet filling the frame",
   vwSel:"front view, facing the camera straight on", agSel:"eye level", lnSel:"50mm lens", dfSel:"",
   ltSel:"soft even lighting", bgSel:"plain light grey background"};
-const S={ shots:[], anchorId:null, comboIds:[], bgId:null, pickIds:[], sketches:[], log:lsGet(LS.log,[]), seq:lsGet(LS.cfg,{}).seq||{} };
+const S={ shots:[], anchorId:null, comboIds:[], bgId:null, pickIds:[], sketches:[], log:lsGet(LS.log,[]), seq:lsGet(LS.cfg,{}).seq||{},
+  track:"A", originId:null, lastCopied:"" };
+
+/* ============================================================
+   주차 모드 — ?week=9 / ?week=11
+   주차가 없으면 기존 동작 그대로입니다. 수업용으로 열 때만 모드가 켜집니다.
+   ============================================================ */
+const WEEK=(function(){ try{ const w=new URLSearchParams(location.search).get("week");
+  return (w==="9"||w==="11")?w:null; }catch(e){ return null; } })();
+/* C 트랙(재시도)은 11주차에만 의미가 있습니다 — 9주차에 띄우면 학생이 세 갈래로 흩어집니다 */
+const TRACKS=()=>WEEK==="11"?["A","B","C"]:["A","B"];
+const trackLabel=k=>t("tr."+k);
+function setTrack(k){ if(TRACKS().indexOf(k)<0) return;
+  S.track=k; saveCfg({track:k}); paintTrack(); say(t("tr.set")+" "+trackLabel(k)); }
+function paintTrack(){ const host=$("#trackSw"); if(!host) return; host.innerHTML="";
+  TRACKS().forEach(k=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=trackLabel(k);
+    b.setAttribute("aria-pressed",String(S.track===k)); b.onclick=()=>setTrack(k); host.appendChild(b); });
+  const sel=$("#inTrack");
+  if(sel){ const cur=sel.value||S.track; sel.innerHTML="";
+    TRACKS().forEach(k=>{ const o=document.createElement("option"); o.value=k; o.textContent=trackLabel(k); sel.appendChild(o); });
+    sel.value=TRACKS().indexOf(cur)>=0?cur:S.track; }
+  /* optgroup 은 label 속성이라 data-i18n 으로 안 바뀝니다 — 여기서 직접 */
+  const gv=$("#inGrpView"), ge=$("#inGrpEtc");
+  if(gv) gv.label=t("in.grpView"); if(ge) ge.label=t("in.grpEtc");
+  if(WEEK&&$("#wkTitle")){ $("#wkTitle").textContent=t("wk."+WEEK); $("#wkObj").textContent=t("wk."+WEEK+"o"); } }
+function paintOrigin(){ const host=$("#refsOrigin"); if(!host) return; host.innerHTML="";
+  const o=shotById(S.originId); if(!o) return;
+  const d=document.createElement("div"); d.className="ref";
+  d.innerHTML='<img src="'+o.url+'" alt=""><div class="tag">'+esc(t("ab.origin"))+'</div>'+
+              '<button class="x" data-act="unorigin" data-id="'+o.id+'">×</button>';
+  host.appendChild(d); }
 function saveCfg(p){ const c=lsGet(LS.cfg,{}); Object.assign(c,p||{}); c.seq=S.seq; lsSet(LS.cfg,c); }
 function cfgGet(){ return lsGet(LS.cfg,{}); }
-function nextName(kind,tag){
-  const K=kind==="L"?"L":"C", tg=(tag||"shot").replace(/[^a-zA-Z0-9_-]+/g,"_").slice(0,28), slot=K+"_"+tg;
+function nextName(kind,tag,track){
+  const K=kind==="L"?"L":"C", tg=(tag||"shot").replace(/[^a-zA-Z0-9_-]+/g,"_").slice(0,28);
+  /* 트랙은 수업 모드에서만 파일명에 붙습니다 — 평소에는 기존 이름 그대로 */
+  const tk=(WEEK&&track)?("_"+track):"";
+  const slot=K+"_"+tg+tk;
   S.seq[slot]=(S.seq[slot]||0)+1; saveCfg();
-  return K+"01_"+tg+"_v"+S.seq[slot]+".png";
+  return K+"01_"+tg+tk+"_v"+S.seq[slot]+".png";
 }
 function neg(){ const v=($("#negIn").value||"").trim(); return v||DEF_NEG; }
 
@@ -1240,6 +1666,9 @@ function neg(){ const v=($("#negIn").value||"").trim(); return v||DEF_NEG; }
    ============================================================ */
 function fillSelect(id,groups,opt){ opt=opt||{};
   const sel=$("#"+id), prev=sel.value; sel.innerHTML="";
+  /* 맨 위의 빈 칸 — 고르지 않았다는 것이 보여야 학생이 고릅니다 */
+  const blank=document.createElement("option"); blank.value=""; blank.textContent=t("opt.none");
+  sel.appendChild(blank);
   groups.forEach(g=>{
     const og=document.createElement("optgroup"); og.label=gl(g);
     g[2].forEach(it=>{ const o=document.createElement("option"); o.value=it[0]; o.textContent=lb(it); og.appendChild(o); });
@@ -1249,7 +1678,7 @@ function fillSelect(id,groups,opt){ opt=opt||{};
   // 옵션을 채우면 브라우저가 첫 항목을 자동 선택하므로, 이전 값이 있었는지로 분기해야 합니다
   if(prev) sel.value=prev;
   else if(DEFAULTS[id]) sel.value=DEFAULTS[id];
-  if(!sel.value) sel.selectedIndex=0;
+  if(sel.selectedIndex<0) sel.selectedIndex=0;
 }
 function pick(id){
   const sel=$("#"+id); if(!sel) return "";
@@ -1270,7 +1699,8 @@ function buildOptList(hostId,groups,key){
     g[2].forEach((it,ii)=>{
       const id=key+"_"+gi+"_"+ii;
       const d=document.createElement("div"); d.className="opt";
-      d.innerHTML='<input type="checkbox" id="'+id+'" data-p="'+esc(it[0])+'" data-n="'+esc(lb(it))+'">'+
+      /* data-e 는 항상 영문 라벨 — 파일명과 시트 짝짓기에 쓰는 태그가 언어를 따라 바뀌면 안 됩니다 */
+      d.innerHTML='<input type="checkbox" id="'+id+'" data-p="'+esc(it[0])+'" data-n="'+esc(lb(it))+'" data-e="'+esc(it[2]||it[1])+'">'+
         '<label class="nm" for="'+id+'">'+esc(lb(it))+'</label>'+
         '<button class="go" data-go="'+id+'">'+esc(t("b.gen"))+'</button>';
       host.appendChild(d);
@@ -1281,7 +1711,7 @@ function buildOptList(hostId,groups,key){
     secOnly(key,b.dataset.go); });
   countSel(hostId,key);
 }
-function selOf(hostId){ return $$("#"+hostId+" input:checked").map(cb=>({p:cb.dataset.p,n:cb.dataset.n})); }
+function selOf(hostId){ return $$("#"+hostId+" input:checked").map(cb=>({p:cb.dataset.p,n:cb.dataset.n,e:cb.dataset.e||cb.dataset.n})); }
 function countSel(hostId,key){ const el=$("#"+key+"Cnt"); if(el) el.textContent=selOf(hostId).length; }
 function clearSel(hostId,key){ $$("#"+hostId+" input:checked").forEach(cb=>cb.checked=false); countSel(hostId,key); }
 /* 뷰는 체크박스 단일 목록 */
@@ -1290,7 +1720,7 @@ function buildViewList(){
   VIEWS.forEach((v,i)=>{
     const id="vw_"+v[0];
     const d=document.createElement("div"); d.className="opt";
-    d.innerHTML='<input type="checkbox" id="'+id+'" data-core="'+(i<4?1:0)+'" data-p="'+esc(v[1])+'" data-n="'+esc(lang==="en"?v[3]:v[2])+'">'+
+    d.innerHTML='<input type="checkbox" id="'+id+'" data-core="'+(i<4?1:0)+'" data-p="'+esc(v[1])+'" data-n="'+esc(lang==="en"?v[3]:v[2])+'" data-e="'+esc(v[3])+'">'+
       '<label class="nm" for="'+id+'">'+esc(lang==="en"?v[3]:v[2])+'</label>'+
       '<button class="go" data-go="'+id+'">'+esc(t("b.gen"))+'</button>';
     host.appendChild(d);
@@ -1461,7 +1891,8 @@ function paintGallery(){
     const isA=s.id===S.anchorId, inC=S.comboIds.indexOf(s.id)>=0, inP=S.pickIds.indexOf(s.id)>=0;
     const d=document.createElement("div"); d.className="shot"+(inP?" picked":"");
     d.innerHTML='<img src="'+s.url+'" alt="'+esc(s.file)+'" data-zoom="'+s.id+'">'+
-      '<div class="meta"><div class="fn">'+esc(s.file)+'</div>'+esc(s.step)+'</div>'+
+      '<div class="meta"><div class="fn">'+(WEEK&&s.track?'<span class="trk '+esc(s.track)+'">'+esc(s.track)+'</span>':"")+esc(s.file)+'</div>'+
+        esc(s.step)+(WEEK&&s.tool&&s.tool!==s.model?' · '+esc(s.tool):"")+'</div>'+
       '<div class="acts">'+
         '<button class="'+(isA?"on":"")+'" data-act="anchor" data-id="'+s.id+'">'+esc(t("g.anchor"))+'</button>'+
         '<button class="'+(inC?"on":"")+'" data-act="combo" data-id="'+s.id+'">'+esc(t("g.ref"))+'</button>'+
@@ -1477,7 +1908,8 @@ function paintGallery(){
   $("#refInfo").innerHTML=esc(t("g.ref"))+": <b>"+S.comboIds.length+"</b>";
   $("#pickInfo").innerHTML=esc(t("g.pick"))+": <b>"+S.pickIds.length+"</b>";
   $("#sheetCnt").textContent=S.pickIds.length;
-  paintAnchorBox(); paintComboBox(); paintChecklist();
+  if($("#abCnt")) $("#abCnt").textContent=S.pickIds.length;
+  paintAnchorBox(); paintComboBox(); paintOrigin(); paintChecklist();
 }
 function paintAnchorBox(){ const host=$("#refsAnchor"); host.innerHTML="";
   const a=shotById(S.anchorId); if(!a) return;
@@ -1511,10 +1943,13 @@ function paintSketches(){ const host=$("#refsSketch"); host.innerHTML="";
 
 async function addShot(o){
   const id="s"+Date.now()+"_"+Math.random().toString(36).slice(2,7);
-  const rec={id,b64:o.b64,mime:o.mime||"image/png",file:nextName(o.kind,o.tag),step:o.step,prompt:o.prompt,model:o.model,at:stamp()};
+  const track=o.track||S.track;
+  const rec={id,b64:o.b64,mime:o.mime||"image/png",file:nextName(o.kind,o.tag,track),step:o.step,prompt:o.prompt,model:o.model,at:stamp(),
+             track,tag:o.tag||"shot",tool:o.tool||o.model||"—",ext:!!o.ext};
   rec.url=URL.createObjectURL(b64ToBlob(rec.b64,rec.mime));
   S.shots.push(rec);
-  await dbPut({id:rec.id,b64:rec.b64,mime:rec.mime,file:rec.file,step:rec.step,prompt:rec.prompt,model:rec.model,at:rec.at});
+  await dbPut({id:rec.id,b64:rec.b64,mime:rec.mime,file:rec.file,step:rec.step,prompt:rec.prompt,model:rec.model,at:rec.at,
+               track:rec.track,tag:rec.tag,tool:rec.tool,ext:rec.ext});
   if(!S.anchorId&&o.kind!=="L"&&!o.noAnchor) S.anchorId=rec.id;
   addLog(Object.assign({},rec,{free:!!o.free})); paintGallery(); return rec;
 }
@@ -1522,13 +1957,15 @@ async function addShot(o){
 /* ============================================================
    기록
    ============================================================ */
-function addLog(r){ S.log.push({n:S.log.length+1,at:r.at,step:r.step,file:r.file,model:r.model,prompt:r.prompt,copied:!!r.copied,free:!!r.free});
+function addLog(r){ S.log.push({n:S.log.length+1,at:r.at,step:r.step,file:r.file,model:r.model,prompt:r.prompt,copied:!!r.copied,free:!!r.free,
+    track:r.track||"",tool:r.tool||r.model||"",tag:r.tag||"",ext:!!r.ext});
   lsSet(LS.log,S.log); paintLog(); paintMeter(); }
 function paintLog(){ const b=$("#logBody"); b.innerHTML="";
   $("#logEmpty").style.display=S.log.length?"none":"block";
   S.log.slice().reverse().forEach(r=>{ const tr=document.createElement("tr");
     tr.innerHTML="<td>"+r.n+"</td><td>"+esc(r.at)+"</td><td>"+esc(r.step)+"</td>"+
-      "<td style='font-family:var(--mono);font-size:10.5px'>"+esc(r.file)+"</td><td>"+esc(r.model)+"</td><td class='p'>"+esc(r.prompt)+"</td>";
+      "<td class='wkOnly'><b>"+esc(r.track||"—")+"</b></td>"+
+      "<td style='font-family:var(--mono);font-size:10.5px'>"+esc(r.file)+"</td><td>"+esc(r.tool||r.model)+"</td><td class='p'>"+esc(r.prompt)+"</td>";
     b.appendChild(tr); }); }
 function priceOf(m,sz){ const x=MODELS.find(y=>y.id===m); return x?(x.price[sz]||x.price["1K"]):0.04; }
 function paintMeter(){
@@ -1561,14 +1998,39 @@ const CHECKS=[
  ()=>{ const s=lsGet(LS.rub,{}); return RUBRIC.every((_,i)=>s["r"+i]); },
  ()=>!!($("#whyPick").value||"").trim()
 ];
+/* 주차 모드에서는 점검 항목이 그 주의 과제로 바뀝니다 */
+function trackItems(tk){ const set=new Set();
+  S.shots.forEach(s=>{ if(shotTrack(s)===tk) set.add(shotTag(s)); }); return Array.from(set); }
+const CHECKS9=[
+ ()=>trackItems("A").length>=3,
+ ()=>trackItems("B").length>=3,
+ ()=>{ const m=abGroups(); if(!m.size) return false; let ok=true;
+       m.forEach(g=>{ if(!g.A||!g.B) ok=false; }); return ok; },
+ ()=>!!cfgGet().abDone,
+ ()=>rfWords()>=150,
+ ()=>S.log.some(r=>r.ext)
+];
+const CHECKS11=[
+ ()=>!!S.originId,
+ ()=>trackItems("A").length>0&&trackItems("B").length>0,
+ ()=>trackItems("C").length>0,
+ ()=>!!cfgGet().abDone,
+ ()=>rfWords()>=150,
+ ()=>!!($("#rf3")&&$("#rf3").value||"").trim()
+];
+function checkSet(){ return WEEK==="9"?{list:CHECKS9,key:"ck9."}
+                        : WEEK==="11"?{list:CHECKS11,key:"ck11."}
+                        : {list:CHECKS,key:"ck."}; }
 function paintChecklist(){ const host=$("#checklist"); if(!host) return; host.innerHTML="";
-  CHECKS.forEach((f,i)=>{ let ok=false; try{ ok=f(); }catch(e){}
+  const CS=checkSet();
+  CS.list.forEach((f,i)=>{ let ok=false; try{ ok=f(); }catch(e){}
     const d=document.createElement("div");
     d.style.cssText="padding:5px 0;font-size:13px;color:"+(ok?"var(--ink)":"var(--ink-3)");
-    d.innerHTML=(ok?'<span style="color:var(--teal-d);font-weight:700">✓</span> ':'<span style="color:var(--ink-3)">○</span> ')+esc(t("ck."+i));
+    d.innerHTML=(ok?'<span style="color:var(--teal-d);font-weight:700">✓</span> ':'<span style="color:var(--ink-3)">○</span> ')+esc(t(CS.key+i));
     host.appendChild(d); }); }
 
-function exportMd(){
+function exportMd(){ saveText(logMd(),"revision-log.md"); say(t("msg.exMd")); }
+function logMd(){
   const c=card(),l=loc(),rub=lsGet(LS.rub,{});
   const KL=["c.who","c.build","c.hair","c.eyes","c.top","c.bottom","c.shoes","c.prop","c.identity"];
   let o=(lang==="en"?"# Revision log":"# 수정 이력")+"\n\n"+stamp()+"\n\n## "+(lang==="en"?"Character card":"캐릭터 설정 카드")+"\n\n| | |\n|---|---|\n";
@@ -1581,14 +2043,14 @@ function exportMd(){
   RUBRIC.forEach((k,i)=>{ o+="| "+t(k)+" | "+(rub["r"+i]||"—")+" |\n"; });
   o+="\n"+t("e.rubricNote")+": "+($("#rubricNote").value||"—")+"\n";
   o+="\n"+t("s.why")+": "+($("#whyPick").value||"—")+"\n";
-  o+="\n## "+t("s.log")+" ("+S.log.length+")\n\n| # | "+t("s.time")+" | "+t("s.step")+" | "+t("s.file")+" | "+t("s.modelc")+" | "+t("s.prompt")+" |\n|---|---|---|---|---|---|\n";
-  S.log.forEach(r=>{ o+="| "+r.n+" | "+r.at+" | "+r.step+" | "+r.file+" | "+r.model+" | "+String(r.prompt).replace(/\|/g,"\\|").replace(/\n/g," ")+" |\n"; });
-  saveText(o,"revision-log.md"); say(t("msg.exMd"));
+  o+="\n## "+t("s.log")+" ("+S.log.length+")\n\n| # | "+t("s.time")+" | "+t("s.step")+" | "+t("tr.lb")+" | "+t("s.file")+" | "+t("s.modelc")+" | "+t("s.prompt")+" |\n|---|---|---|---|---|---|---|\n";
+  S.log.forEach(r=>{ o+="| "+r.n+" | "+r.at+" | "+r.step+" | "+(r.track||"—")+" | "+r.file+" | "+(r.tool||r.model)+" | "+String(r.prompt).replace(/\|/g,"\\|").replace(/\n/g," ")+" |\n"; });
+  return o;
 }
-function exportCsv(){ const rows=[["n","at","step","file","model","prompt"]];
-  S.log.forEach(r=>rows.push([r.n,r.at,r.step,r.file,r.model,r.prompt]));
-  const csv="﻿"+rows.map(r=>r.map(v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
-  saveBlob(new Blob([csv],{type:"text/csv;charset=utf-8"}),"revision-log.csv"); }
+function exportCsv(){ saveBlob(new Blob([logCsv()],{type:"text/csv;charset=utf-8"}),"revision-log.csv"); }
+function logCsv(){ const rows=[["n","at","step","track","file","tool","model","prompt"]];
+  S.log.forEach(r=>rows.push([r.n,r.at,r.step,r.track||"",r.file,r.tool||r.model,r.model,r.prompt]));
+  return "﻿"+rows.map(r=>r.map(v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"').join(",")).join("\r\n"); }
 
 /* ============================================================
    모델 시트 조판
@@ -1639,6 +2101,225 @@ function openCompare(){
     '<figure><img src="'+s.url+'" alt=""><figcaption>'+esc(s.file)+" · "+esc(s.step)+'</figcaption></figure>':""; }).join("");
   $("#cmpTitle").textContent=t("s.cmp")+" — "+ids.length;
   $("#cmp").classList.add("show");
+}
+
+/* ============================================================
+   9·11주차 — 외부 툴 결과 회수
+   다른 툴에서 받은 그림도 같은 기록에 들어와야 비교가 성립합니다.
+   ============================================================ */
+const ITEMS={view:"it.view",expr:"it.expr",pose:"it.pose",sil:"it.sil",cos:"it.cos",etc:"it.etc",
+             front:"it.front",threeq:"it.threeq",side:"it.side",back:"it.back"};
+/* 앱 안에서 만든 결과와 같은 규칙으로 이름을 붙여야 A와 B가 한 줄에 놓입니다 */
+const ITEM_PREFIX={expr:"exp_",pose:"pose_",sil:"sil_",cos:"cos_",etc:""};
+function intakeTag(){
+  const item=$("#inItem").value, free=($("#inItemFree").value||"").trim();
+  if(["front","threeq","side","back"].indexOf(item)>=0) return free?slug(free):item;
+  return free?((ITEM_PREFIX[item]||"")+slug(free)):item;
+}
+async function intake(files){
+  if(!files||!files.length) return;
+  const tool=$("#inTool").value, item=$("#inItem").value, track=$("#inTrack").value||S.track;
+  const p=($("#inPrompt").value||"").trim();
+  if(!p){ say(t("in.noPrompt"),{err:true}); return; }
+  const tag=intakeTag(), label=t(ITEMS[item]||"it.etc");
+  let n=0;
+  for(const f of files){
+    try{ const r=await readImageFile(f);
+      await addShot({b64:r.b64,mime:r.mime,step:label+" · "+tool,prompt:p,model:tool,tool,ext:true,
+        tag,kind:"C",track,noAnchor:true,free:true});
+      n++;
+    }catch(e){ say(e.message,{err:true}); }
+  }
+  if(n) say(n+" "+t("in.added"));
+  paintGallery();
+}
+
+/* ============================================================
+   9·11주차 — A/B 비교 시트
+   같은 항목의 A와 B가 한 줄에 놓입니다. 짝이 없으면 비교가 아니라 전시가 됩니다.
+   ============================================================ */
+function shotTag(s){ if(s.tag) return s.tag;
+  const m=String(s.file||"").match(/^[CL]01_(.+?)(?:_[ABCO])?_v\d+\.png$/); return m?m[1]:"shot"; }
+function shotTrack(s){ return s.track||"A"; }
+function abGroups(){
+  const tracks=TRACKS(), map=new Map();
+  S.pickIds.map(shotById).filter(Boolean).forEach(s=>{
+    if(shotTrack(s)==="O") return;                       // 원본은 따로 놓입니다
+    const tk=tracks.indexOf(shotTrack(s))>=0?shotTrack(s):tracks[0];
+    const k=shotTag(s); if(!map.has(k)) map.set(k,{});
+    if(!map.get(k)[tk]) map.get(k)[tk]=s;                 // 같은 항목·트랙은 첫 장만
+  });
+  return map;
+}
+function loadImg(src){ return new Promise(res=>{ const im=new Image();
+  im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; }); }
+/* 항목 이름을 사람이 읽는 말로 — 시트에 exp_worried 가 찍히면 읽는 사람이 멈춥니다 */
+function prettyTag(k){
+  if(ITEMS[k]) return t(ITEMS[k]);
+  const V={front:["정면","front"],threeq:["4분의 3","three-quarter"],side:["측면","side"],back:["뒷면","back"],
+           origin:["원본","original"]};
+  if(V[k]) return V[k][LI()];
+  return String(k).replace(/^(exp|pose|sil|cos)_/,"").replace(/_/g," ");
+}
+/* 칸을 넘는 글자는 잘라 냅니다 — 옆 칸 캡션과 겹치면 둘 다 못 읽습니다 */
+function fitText(x,s,maxW){ s=String(s==null?"":s);
+  if(x.measureText(s).width<=maxW) return s;
+  let lo=0,hi=s.length;
+  while(lo<hi){ const mid=(lo+hi+1)>>1;
+    if(x.measureText(s.slice(0,mid)+"…").width<=maxW) lo=mid; else hi=mid-1; }
+  return s.slice(0,lo)+"…";
+}
+function wrapText(x,text,maxW){ const words=String(text||"").split(/\s+/).filter(Boolean), lines=[]; let cur="";
+  words.forEach(w=>{ const tr=cur?cur+" "+w:w;
+    if(x.measureText(tr).width>maxW&&cur){ lines.push(cur); cur=w; } else cur=tr; });
+  if(cur) lines.push(cur); return lines; }
+function drawCell(x,im,cx,cy,cell,dark){
+  x.fillStyle=dark?"#1e2429":"#f3f6f6"; x.fillRect(cx,cy,cell,cell);
+  if(im){ const r=Math.min(cell/im.width,cell/im.height), w=im.width*r, h=im.height*r;
+    x.drawImage(im,cx+(cell-w)/2,cy+(cell-h)/2,w,h); }
+  x.strokeStyle=dark?"#313a40":"#dde3e3"; x.lineWidth=1; x.strokeRect(cx+.5,cy+.5,cell-1,cell-1);
+}
+let abReady=false;
+async function buildAbSheet(){
+  const map=abGroups();
+  if(!map.size){ say(t("ab.nopick"),{err:true}); return; }
+  const tracks=TRACKS(), cell=parseInt($("#abCell").value,10)||560;
+  const keys=Array.from(map.keys()).slice(0,4);
+  /* 짝이 맞지 않는 항목을 먼저 알려 줍니다 — 조판은 그래도 해 줍니다 */
+  const bad=keys.filter(k=>tracks.some(tk=>!map.get(k)[tk]));
+  const warn=$("#abWarn");
+  if(bad.length){ warn.style.display="block"; warn.textContent=t("ab.unpaired")+" "+bad.join(", "); }
+  else warn.style.display="none";
+
+  const pad=Math.round(cell*.05), G=Math.round(cell*.46), capH=Math.round(cell*.085);
+  const titleH=Math.round(cell*.19), headH=Math.round(cell*.1);
+  const origin=shotById(S.originId);
+  const oH=origin?Math.round(cell*.46)+pad+capH:0;
+  const ptxt=($("#abPrompt").value||"").trim();
+  const W=G+tracks.length*(cell+pad)+pad;
+  const cv=$("#abCanvas"), x=cv.getContext("2d");
+  /* 프롬프트 박스 높이를 먼저 재야 캔버스 높이가 정해집니다 */
+  x.font=Math.round(cell*.042)+"px system-ui,sans-serif";
+  const plines=ptxt?wrapText(x,ptxt,W-pad*2-16):[];
+  const pH=ptxt?(plines.length*Math.round(cell*.058)+Math.round(cell*.1)):0;
+  const H=titleH+oH+headH+keys.length*(cell+capH+pad)+pad+pH;
+  cv.width=W; cv.height=H;
+
+  const dark=false, fg="#16191c", fg2="#7b858c";
+  x.fillStyle="#ffffff"; x.fillRect(0,0,W,H);
+  x.textBaseline="middle";
+  x.fillStyle=fg; x.font="600 "+Math.round(cell*.08)+"px system-ui,sans-serif";
+  x.fillText(($("#abTitle").value||"").trim()||t("ab.title"),pad,titleH*.45);
+  x.fillStyle=fg2; x.font=Math.round(cell*.042)+"px system-ui,sans-serif";
+  x.fillText(stamp()+(WEEK?"  ·  "+t("wk."+WEEK):""),pad,titleH*.78);
+
+  let y=titleH;
+  if(origin){
+    const oc=Math.round(cell*.46);
+    const im=await loadImg(origin.url);
+    drawCell(x,im,pad,y,oc,dark);
+    x.fillStyle=fg; x.font="600 "+Math.round(cell*.05)+"px system-ui,sans-serif";
+    x.fillText(t("ab.origin"),pad+oc+Math.round(cell*.05),y+oc*.45);
+    x.fillStyle=fg2; x.font=Math.round(cell*.04)+"px ui-monospace,monospace";
+    x.fillText(origin.file,pad+oc+Math.round(cell*.05),y+oc*.62);
+    y+=oH;
+  }
+  /* 열 머리 — 어느 트랙인지 */
+  x.font="600 "+Math.round(cell*.05)+"px system-ui,sans-serif";
+  tracks.forEach((tk,i)=>{ x.fillStyle=fg;
+    x.fillText(trackLabel(tk),G+i*(cell+pad),y+headH*.5); });
+  y+=headH;
+
+  const lblW=G-pad-Math.round(cell*.05), lblSz=Math.round(cell*.05);
+  for(const k of keys){
+    /* 항목 이름 — 길면 두 줄까지 접어서 가운데 맞춤 */
+    x.fillStyle=fg; x.font="600 "+lblSz+"px system-ui,sans-serif";
+    const ln=wrapText(x,prettyTag(k),lblW).slice(0,2);
+    ln.forEach((l,j)=>x.fillText(fitText(x,l,lblW),pad,y+cell*.45+(j-(ln.length-1)/2)*lblSz*1.3));
+    for(let i=0;i<tracks.length;i++){
+      const s=map.get(k)[tracks[i]], cx=G+i*(cell+pad);
+      const im=s?await loadImg(s.url):null;
+      drawCell(x,im,cx,y,cell,dark);
+      x.fillStyle=fg2; x.font=Math.round(cell*.036)+"px ui-monospace,monospace";
+      x.fillText(fitText(x,s?(s.file+"  ·  "+(s.tool||s.model||"")):"—",cell-4),cx+2,y+cell+capH*.5);
+    }
+    y+=cell+capH+pad;
+  }
+  if(ptxt){
+    x.fillStyle="#f3f6f6"; x.fillRect(pad,y,W-pad*2,pH-Math.round(cell*.03));
+    x.strokeStyle="#dde3e3"; x.strokeRect(pad+.5,y+.5,W-pad*2-1,pH-Math.round(cell*.03)-1);
+    x.fillStyle=fg2; x.font=Math.round(cell*.042)+"px ui-monospace,monospace";
+    plines.forEach((ln,i)=>x.fillText(ln,pad+8,y+Math.round(cell*.05)+i*Math.round(cell*.058)));
+  }
+  abReady=true; saveCfg({abDone:true}); say(t("ab.ready")); paintChecklist();
+}
+function saveAbSheet(){ if(!abReady){ say(t("ab.noSheet"),{err:true}); return; }
+  $("#abCanvas").toBlob(b=>{ if(b) saveBlob(b,"AB_comparison_sheet.png"); },"image/png"); }
+
+/* ============================================================
+   9·11주차 — 성찰 문단
+   ============================================================ */
+const RF=["rf1","rf2","rf3"];
+const rfText=()=>RF.map(id=>($("#"+id)?$("#"+id).value:"")||"");
+function rfWords(){ return rfText().join(" ").split(/\s+/).filter(Boolean).length; }
+function rfSave(){ const o={}; RF.forEach((id,i)=>o["q"+i]=$("#"+id).value); lsSet(LS.ref,o); }
+function rfPaint(){ const n=rfWords(), el=$("#rfCount"); if(!el) return;
+  el.textContent=n+" "+t("rf.words")+" · "+(n<150?t("rf.short"):n>200?t("rf.long"):t("rf.ok"));
+  el.className="wc"+(n>=150&&n<=200?" ok":""); paintChecklist(); }
+function rfMd(){
+  const q=[t("rf.q1"),t("rf.q2"),t("rf.q3")], v=rfText();
+  let o="# "+t("rf.title")+(WEEK?" — "+t("wk."+WEEK):"")+"\n\n"+stamp()+"\n\n";
+  const nm=($("#bnName").value||"").trim(); if(nm) o+=nm+"\n\n";
+  q.forEach((h,i)=>{ o+="## "+(i+1)+". "+h+"\n\n"+(v[i].trim()||"—")+"\n\n"; });
+  o+="— "+rfWords()+" "+t("rf.words")+"\n";
+  return o;
+}
+
+/* ============================================================
+   9·11주차 — 제출 묶음 (압축 없는 zip · 외부 라이브러리 없이)
+   ============================================================ */
+function crc32(buf){ let c,crc=0xFFFFFFFF;
+  if(!crc32.T){ crc32.T=new Uint32Array(256);
+    for(let n=0;n<256;n++){ c=n; for(let k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); crc32.T[n]=c>>>0; } }
+  for(let i=0;i<buf.length;i++) crc=(crc>>>8)^crc32.T[(crc^buf[i])&0xFF];
+  return (crc^0xFFFFFFFF)>>>0; }
+function zipStore(files){
+  const enc=new TextEncoder(), parts=[], cen=[];
+  const u16=n=>[n&255,(n>>8)&255], u32=n=>[n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255];
+  let off=0;
+  files.forEach(f=>{
+    const nm=enc.encode(f.name), crc=crc32(f.data), sz=f.data.length;
+    const lh=new Uint8Array([].concat(u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(0),u16(0),
+      u32(crc),u32(sz),u32(sz),u16(nm.length),u16(0)));
+    parts.push(lh,nm,f.data); cen.push({nm,crc,sz,off}); off+=lh.length+nm.length+sz;
+  });
+  let cdLen=0; const cd=[];
+  cen.forEach(c=>{
+    const h=new Uint8Array([].concat(u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(0),u16(0),
+      u32(c.crc),u32(c.sz),u32(c.sz),u16(c.nm.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(c.off)));
+    cd.push(h,c.nm); cdLen+=h.length+c.nm.length;
+  });
+  const end=new Uint8Array([].concat(u32(0x06054b50),u16(0),u16(0),u16(cen.length),u16(cen.length),u32(cdLen),u32(off),u16(0)));
+  return new Blob(parts.concat(cd,[end]),{type:"application/zip"});
+}
+const enc8=s=>new TextEncoder().encode(s);
+async function makeBundle(){
+  const files=[];
+  if(abReady){ const b=await new Promise(r=>$("#abCanvas").toBlob(r,"image/png"));
+    if(b) files.push({name:"AB_comparison_sheet.png",data:new Uint8Array(await b.arrayBuffer())}); }
+  if(sheetReady){ const b=await new Promise(r=>$("#sheetCanvas").toBlob(r,"image/png"));
+    if(b) files.push({name:"model_sheet.png",data:new Uint8Array(await b.arrayBuffer())}); }
+  files.push({name:"reflection.md",data:enc8(rfMd())});
+  files.push({name:"revision-log.md",data:enc8(logMd())});
+  files.push({name:"revision-log.csv",data:enc8(logCsv())});
+  /* 시트에 들어간 원본 이미지도 함께 — 교수자가 크게 열어볼 수 있게 */
+  const picks=S.pickIds.map(shotById).filter(Boolean);
+  const org=shotById(S.originId); if(org) picks.unshift(org);
+  for(const s of picks){ try{ const b=b64ToBlob(s.b64,s.mime);
+    files.push({name:"images/"+s.file,data:new Uint8Array(await b.arrayBuffer())}); }catch(e){} }
+  const nm=($("#bnName").value||"").trim().replace(/[^\w가-힣 .-]+/g,"_")||"submission";
+  saveBlob(zipStore(files),nm+(WEEK?"_wk"+WEEK:"")+".zip");
+  say(t("bn.done"));
 }
 
 /* ============================================================
@@ -1811,20 +2492,33 @@ async function uploadAsRef(files,kind,step){
    거기 고친 내용이 그대로 전송됩니다. 키가 없어도 복사는 됩니다.
    ============================================================ */
 const slug=s=>String(s||"x").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,20);
+/* 태그는 영문 라벨에서 뽑습니다. 한글 라벨로 뽑으면 slug 가 전부 지워 버려
+   의상·표정·포즈가 모두 같은 이름이 되고, 비교 시트에서 한 줄로 뭉개집니다.
+   직접 쓴 항목이 한글이라 비어 버리면 짧은 해시를 붙여 서로 구분되게 합니다. */
+function tagOf(it){
+  const s=slug(it.e||it.n);
+  if(s) return s;
+  const src=String(it.n||it.p||"");
+  let h=0; for(let i=0;i<src.length;i++) h=(h*31+src.charCodeAt(i))>>>0;
+  return "x"+h.toString(36).slice(0,5);
+}
 const SECS={
  view:{host:"viewList",free:"viewFree",ta:"viewPrompt",make:p=>pView(p),step:()=>t("st.view"),
        tag:it=>{ const v=VIEWS.find(v=>v[1]===it.p); return v?v[0]:slug(it.n); }},
- expr:{host:"exprList",free:"exprFree",ta:"exprPrompt",make:p=>pExpr(p),step:()=>t("st.expr"),tag:it=>"exp_"+slug(it.n)},
- pose:{host:"poseList",free:"poseFree",ta:"posePrompt",make:p=>pPose(p),step:()=>t("st.pose"),tag:it=>"pose_"+slug(it.n)},
- sil: {host:"silList", free:null,      ta:"silPrompt", make:p=>pSil(p), step:()=>t("st.sil"), tag:it=>"sil_"+slug(it.n)},
- cos: {host:"cosList", free:"cosFree", ta:"cosPrompt", make:p=>pCos(p), step:()=>t("st.cos"), tag:it=>"cos_"+slug(it.n)}
+ expr:{host:"exprList",free:"exprFree",ta:"exprPrompt",make:p=>pExpr(p),step:()=>t("st.expr"),tag:it=>"exp_"+tagOf(it)},
+ pose:{host:"poseList",free:"poseFree",ta:"posePrompt",make:p=>pPose(p),step:()=>t("st.pose"),tag:it=>"pose_"+tagOf(it)},
+ sil: {host:"silList", free:null,      ta:"silPrompt", make:p=>pSil(p), step:()=>t("st.sil"), tag:it=>"sil_"+tagOf(it)},
+ cos: {host:"cosList", free:["cosFree","cosSeasonFree"], ta:"cosPrompt", make:p=>pCos(p), step:()=>t("st.cos"), tag:it=>"cos_"+tagOf(it)}
 };
 const HDR_RE=/^###[^\n]*$/mg, HDR_ONE=/^###[^\n]*$/m;
 const hdr=(i,label)=>"### "+i+" · "+label;
 
+/* 직접 입력란은 한 섹션에 여러 개일 수 있습니다 (의상 = 의상 + 계절·날씨) */
+const freeIds=k=>{ const f=SECS[k].free; return !f?[]:(Array.isArray(f)?f:[f]); };
 function secItems(k){
-  const s=SECS[k]; let list=selOf(s.host);
-  if(s.free){ const x=($("#"+s.free).value||"").trim(); if(x) list=list.concat([{p:x,n:x}]); }
+  let list=selOf(SECS[k].host);
+  freeIds(k).forEach(id=>{ const el=$("#"+id); if(!el) return;
+    const x=(el.value||"").trim(); if(x) list=list.concat([{p:x,n:x,e:x}]); });
   return list;
 }
 /* force=true 면 덮어쓰기(선택이 바뀐 경우), false 면 학생이 고친 내용을 지킴(언어 전환 등) */
@@ -1875,7 +2569,8 @@ function secCopy(k){
   copy($("#"+s.ta).value);
   q.forEach(x=>addLog({at:stamp(),step:s.step()+" · "+t("b.copied"),file:"—",model:"—",prompt:x.prompt,copied:true}));
 }
-function secClear(k){ clearSel(SECS[k].host,k); if(SECS[k].free) $("#"+SECS[k].free).value=""; secRender(k,true); }
+function secClear(k){ clearSel(SECS[k].host,k);
+  freeIds(k).forEach(id=>{ const el=$("#"+id); if(el) el.value=""; }); secRender(k,true); }
 function secRenderAll(force){ Object.keys(SECS).forEach(k=>secRender(k,force)); }
 
 async function testKey(){
@@ -1979,7 +2674,7 @@ function applyLang(){
   buildOptList("poseList",POSES,"pose");
   buildOptList("silList",SILHOUETTES,"sil");
   buildOptList("cosList",COSTUMES,"cos");
-  buildTabs(); buildRubric(); paintGallery(); paintChecklist();
+  buildTabs(); buildRubric(); paintTrack(); paintGallery(); paintChecklist(); rfPaint();
   $("#keyState").textContent=apiKey()?t("set.keySaved"):t("set.keyNone");
   $("#poseIn").placeholder=lang==="en"?"standing straight, arms relaxed at the sides":"standing straight, arms relaxed at her sides";
   $("#sheetTitle").placeholder=lang==="en"?"Character model sheet":"캐릭터 모델 시트";
@@ -1993,7 +2688,48 @@ function setLang(l){ lang=l; try{ localStorage.setItem("cm.lang",l); }catch(e){}
    시작
    ============================================================ */
 (async function init(){
+  /* 게이트가 먼저 — 통과하기 전에는 본문이 보이지 않습니다 */
+  gateBoot();
+  (function wireGate(){
+    const inp=$("#gateIn"), err=$("#gateErr");
+    const fail=m=>{ err.textContent=m; inp.select(); };
+    const go=()=>{
+      const v=(inp.value||"").trim();
+      if(!v){ fail("코드를 입력하세요. · Enter a code."); return; }
+      const r=gateCheck(v);
+      if(r.ok){ err.textContent=""; gateLet(r.h); return; }
+      if(r.why==="expired") fail("이 코드는 "+r.until+" 까지만 쓸 수 있었습니다. 담당 교수에게 문의하세요."+
+                                 " · This code expired on "+r.until+". Ask your instructor.");
+      else fail("코드가 맞지 않습니다. 대소문자는 구분하지 않습니다."+
+                " · That code doesn't match. Capitals don't matter.");
+    };
+    $("#gateGo").onclick=go;
+    inp.addEventListener("keydown",e=>{ if(e.key==="Enter") go(); });
+    /* 코드 만들기 도구 — 해시는 되돌릴 수 없으니 학생이 봐도 얻을 것이 없습니다 */
+    let mk=false; try{ mk=new URLSearchParams(location.search).get("newcode")==="1"; }catch(e){}
+    if(mk){ $("#gate").classList.add("mknew");
+      $("#ncGo").onclick=()=>{
+        const c=($("#ncCode").value||"").trim();
+        if(!c){ $("#ncOut").value="코드를 먼저 적으세요."; return; }
+        const u=($("#ncUntil").value||"").trim(), n=($("#ncNote").value||"").trim();
+        if(u&&!/^\d{4}-\d{2}-\d{2}$/.test(u)){ $("#ncOut").value="기한은 YYYY-MM-DD 형식으로 적으세요."; return; }
+        $("#ncOut").value=
+          ' /* 코드: '+c+' */\n {h:"'+gateHash(c)+'", until:"'+u+'", note:"'+n.replace(/"/g,"'")+'"},\n'+
+          '\n 바로 열리는 링크: '+location.origin+location.pathname+"?c="+encodeURIComponent(c);
+      };
+      if(!gateOn()) $("#gateErr").textContent="지금은 초청 코드가 꺼져 있습니다 (GATE_CODES 가 비어 있음).";
+    }
+  })();
+
   const c0=cfgGet();
+  /* 주차 모드 — 주소에 ?week=9 / ?week=11 이 있을 때만 수업용 UI가 켜집니다 */
+  if(WEEK){ document.body.classList.add("wk");
+    if(c0.track&&TRACKS().indexOf(c0.track)>=0) S.track=c0.track;
+    S.originId=c0.originId||null;
+    if(c0.bnName) $("#bnName").value=c0.bnName;
+    if(c0.abTitle) $("#abTitle").value=c0.abTitle;
+    const rf=lsGet(LS.ref,{}); RF.forEach((id,i)=>{ if(rf["q"+i]) $("#"+id).value=rf["q"+i]; });
+  }
   $("#negIn").value=c0.neg||DEF_NEG;
   if(c0.aspect) $("#aspect").value=c0.aspect;
   if(c0.size) $("#size").value=c0.size;
@@ -2035,8 +2771,14 @@ function setLang(l){ lang=l; try{ localStorage.setItem("cm.lang",l); }catch(e){}
   $("#btnKeepFromCard").onclick=()=>{ $("#keepIn").value=keepAuto(); saveCfg({keep:keepAuto()}); };
   $("#noPeople").addEventListener("change",syncAll);
   $("#propFirst").addEventListener("change",()=>{ saveCfg({propFirst:$("#propFirst").checked}); syncAll(); });
-  $("#btnExample").onclick=()=>{ lsSet(LS.card,Object.assign({},card(),EX_CARD)); paintCards(); syncAll(); };
-  $("#btnClearCard").onclick=()=>{ lsSet(LS.card,{}); $$(".cc").forEach(i=>i.value=""); syncAll(); };
+  /* 예시는 카드와 선택칸을 함께 채웁니다 — 반쪽만 채우면 프롬프트가 어중간해집니다 */
+  $("#btnExample").onclick=()=>{ lsSet(LS.card,Object.assign({},card(),EX_CARD));
+    Object.keys(EX_PICKS).forEach(id=>{ const s=$("#"+id); if(!s||!EX_PICKS[id]) return;
+      if($$("option",s).some(o=>o.value===EX_PICKS[id])) s.value=EX_PICKS[id]; });
+    paintCards(); syncAll(); };
+  $("#btnClearCard").onclick=()=>{ lsSet(LS.card,{}); $$(".cc").forEach(i=>i.value="");
+    Object.keys(EX_PICKS).forEach(id=>{ const s=$("#"+id); if(s) s.value=""; });
+    syncAll(); };
   $("#btnExampleLoc").onclick=()=>{ lsSet(LS.loc,Object.assign({},loc(),EX_LOC)); paintCards(); syncAll(); };
   $("#whyPick").addEventListener("input",()=>{ saveCfg({whyPick:$("#whyPick").value}); paintChecklist(); });
   $("#rubricNote").addEventListener("input",()=>{ const s=lsGet(LS.rub,{}); s.note=$("#rubricNote").value; lsSet(LS.rub,s); });
@@ -2065,7 +2807,7 @@ function setLang(l){ lang=l; try{ localStorage.setItem("cm.lang",l); }catch(e){}
     $("#btn"+C+"Batch").onclick=()=>runSec(k);
     $("#btn"+C+"Copy").onclick=()=>secCopy(k);
     $("#btn"+C+"None").onclick=()=>secClear(k);
-    const f=SECS[k].free; if(f) $("#"+f).addEventListener("input",()=>secRender(k,true));
+    freeIds(k).forEach(id=>{ const el=$("#"+id); if(el) el.addEventListener("input",()=>secRender(k,true)); });
   });
 
   $("#fixSel").onchange=()=>fixApply(true); fixApply(true);
@@ -2111,9 +2853,25 @@ function setLang(l){ lang=l; try{ localStorage.setItem("cm.lang",l); }catch(e){}
     if(!g){ say(t("msg.noref"),{err:true}); return; }
     S.anchorId=g.id; paintGallery(); say(t("msg.bgAnchor")); };
 
+  /* ---- 9·11주차 수업 모드 배선 ---- */
+  paintTrack();
+  wireDrop("#dropIn","#fileIn",intake);
+  wireDrop("#dropOrigin","#fileOrigin",async files=>{ if(!files.length) return;
+    try{ const r=await readImageFile(files[0]);
+      const rec=await addShot({b64:r.b64,mime:r.mime,step:t("ab.origin"),prompt:"(original drawing: "+r.name+")",
+        model:"—",tool:"—",tag:"origin",kind:"C",track:"O",noAnchor:true,free:true});
+      S.originId=rec.id; saveCfg({originId:rec.id}); paintGallery(); say(t("msg.uploaded"));
+    }catch(e){ say(e.message,{err:true}); } });
+  $("#btnAbBuild").onclick=buildAbSheet; $("#btnAbSave").onclick=saveAbSheet;
+  $("#btnBundle").onclick=makeBundle;
+  $("#abTitle").addEventListener("input",()=>saveCfg({abTitle:$("#abTitle").value}));
+  $("#bnName").addEventListener("input",()=>saveCfg({bnName:$("#bnName").value}));
+  RF.forEach(id=>$("#"+id).addEventListener("input",()=>{ rfSave(); rfPaint(); }));
+  rfPaint();
+
   $("#btnSheetBuild").onclick=buildSheet; $("#btnSheetSave").onclick=saveSheet; $("#btnCmp").onclick=openCompare;
   $("#btnExportMd").onclick=exportMd; $("#btnExportCsv").onclick=exportCsv;
-  $("#btnClearLog").onclick=()=>{ if(!confirm(t("msg.logAsk"))) return;
+  $("#btnClearLog").onclick=async()=>{ if(!await ask(t("msg.logAsk"))) return;
     S.log=[]; lsSet(LS.log,S.log); paintLog(); paintMeter(); };
 
   document.addEventListener("click",async e=>{
@@ -2129,20 +2887,27 @@ function setLang(l){ lang=l; try{ localStorage.setItem("cm.lang",l); }catch(e){}
       if(S.bgId===id) S.bgId=null; paintGallery(); }
     else if(act==="bgpick"){ S.bgId=id; paintGallery(); say(t("msg.bgPick")); }
     else if(act==="unsketch"){ S.sketches=S.sketches.filter(s=>s.id!==id); paintSketches(); }
+    else if(act==="unorigin"){ S.originId=null; saveCfg({originId:null}); paintGallery(); }
     else if(act==="dl"){ const s=shotById(id); if(s) saveBlob(b64ToBlob(s.b64,s.mime),s.file); }
-    else if(act==="del"){ const s=shotById(id); if(!s) return; if(!confirm(s.file+" "+t("msg.delAsk"))) return;
+    else if(act==="del"){ const s=shotById(id); if(!s) return;
+      if(!await ask(s.file+" "+t("msg.delAsk"))) return;
+      if(!shotById(id)) return;                       /* 묻는 사이에 이미 지워졌다면 */
       S.shots=S.shots.filter(x=>x.id!==id);
       if(S.anchorId===id) S.anchorId=null;
+      if(S.originId===id){ S.originId=null; saveCfg({originId:null}); }
       S.comboIds=S.comboIds.filter(x=>x!==id); S.pickIds=S.pickIds.filter(x=>x!==id);
       if(S.bgId===id) S.bgId=null;
-      await dbDel(id); try{ URL.revokeObjectURL(s.url); }catch(err){} paintGallery(); }
+      await dbDel(id); try{ URL.revokeObjectURL(s.url); }catch(err){} paintGallery(); say(t("msg.deleted")); }
   });
   $("#btnDlAll").onclick=()=>{ if(!S.shots.length){ say(t("msg.noimgdl"),{err:true}); return; }
     S.shots.forEach((s,i)=>setTimeout(()=>saveBlob(b64ToBlob(s.b64,s.mime),s.file),i*320)); };
   $("#btnSelNone").onclick=()=>{ S.pickIds=[]; paintGallery(); };
-  $("#btnWipe").onclick=async()=>{ if(!confirm(t("msg.wipeAsk"))) return;
+  $("#btnWipe").onclick=async()=>{
+    if(!S.shots.length){ say(t("msg.noimgdl"),{err:true}); return; }
+    if(!await ask(t("msg.wipeAsk"))) return;
     S.shots.forEach(s=>{ try{ URL.revokeObjectURL(s.url); }catch(e){} });
-    S.shots=[]; S.anchorId=null; S.comboIds=[]; S.bgId=null; S.pickIds=[]; await dbClear(); paintGallery(); };
+    S.shots=[]; S.anchorId=null; S.comboIds=[]; S.bgId=null; S.pickIds=[]; S.originId=null;
+    saveCfg({originId:null}); await dbClear(); paintGallery(); say(t("msg.wiped")); };
   $("#lbClose").onclick=()=>$("#lb").classList.remove("show");
   $("#lb").onclick=e=>{ if(e.target.id==="lb") $("#lb").classList.remove("show"); };
   $("#cmpClose").onclick=()=>$("#cmp").classList.remove("show");
